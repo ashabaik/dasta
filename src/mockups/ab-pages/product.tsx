@@ -2,13 +2,12 @@ import Image from "next/image";
 import { ViewTransition } from "react";
 import { BadgeCheck, Clock, MessageSquare, Minus, Plus, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/shadcn/button";
-import { asLang, byId, dastaCategories, dastaProducts, dict, money, name, unit } from "@/mockups/data";
+import { byId, dastaCategories, dastaProducts, dict, money, name, unit, type Lang } from "@/mockups/data";
 import { Card, Footer, Header } from "@/mockups/ab";
 
 // A working screen: light and fast. No smooth-scroll layer, nothing held; the only movement is the
 // photograph arriving from the list and the answers to what the visitor does.
-export default async function ProductAB({ params }: { params: Promise<{ lang: string }> }) {
-  const lang = asLang((await params).lang);
+export function ProductAB({ lang }: { lang: Lang }) {
   const t = dict(lang);
   const p = byId("mugs");
   const cat = dastaCategories.find((c) => c.key === p.cat)!;
@@ -143,7 +142,7 @@ export default async function ProductAB({ params }: { params: Promise<{ lang: st
       </div>
 
       {/* Phone: the action stays on screen. */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 lg:hidden">
         <Button className="h-13 w-full rounded-full text-base">
           {t.addToOrder} <span className="num">{money(p.price * p.moq)}</span> {t.egp}
         </Button>

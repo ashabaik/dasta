@@ -3,13 +3,12 @@ import { ViewTransition } from "react";
 import { ChevronRight, ShieldCheck, Store, Truck } from "lucide-react";
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
-import { asLang, dict } from "@/mockups/data";
+import { dict, type Lang } from "@/mockups/data";
 import { BASE, Footer, Header, TabBar } from "@/mockups/ab";
 
 // Sign-in is a working screen: a plain form, and beside it the honest shortcut. The sample accounts
 // live here and nowhere else, and the page says in plain words what they are.
-export default async function SignInAB({ params }: { params: Promise<{ lang: string }> }) {
-  const lang = asLang((await params).lang);
+export function SignInAB({ lang }: { lang: Lang }) {
   const t = dict(lang);
   const accounts = [
     { Icon: Truck, title: t.buyerAcc, text: t.buyerAccText, href: `${BASE}/${lang}` },

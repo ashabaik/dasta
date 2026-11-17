@@ -30,7 +30,7 @@ export function Wordmark({ lang, onDark = false }: { lang: Lang; onDark?: boolea
 export function Header({ lang, t, path = "", account }: { lang: Lang; t: T; path?: string; account?: string }) {
   const other = lang === "ar" ? "en" : "ar";
   return (
-    <header className="sticky top-0 z-20 bg-background/90 backdrop-blur">
+    <header className="sticky top-0 z-20 bg-background lg:bg-background/90 lg:backdrop-blur">
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-8">
         <Link href={`${BASE}/${lang}`} className="inline-flex min-h-11 items-center text-foreground">
           <Wordmark lang={lang} />
@@ -87,11 +87,11 @@ export function TabBar({ lang, t, active }: { lang: Lang; t: T; active?: "home" 
     { key: "account", label: t.account, Icon: User, href: `${BASE}/${lang}/signin` },
   ];
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden" aria-label="Main">
+    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] lg:hidden" aria-label="Main">
       <ul className="mx-auto grid max-w-md grid-cols-5">
         {items.map(({ key, label, Icon, href }) => (
           <li key={key}>
-            <Link href={href} aria-current={key === active ? "page" : undefined} className={`flex min-h-[60px] flex-col items-center justify-center gap-1 text-[12px] font-medium ${key === active ? "text-primary" : "text-muted-foreground"}`}>
+            <Link href={href} prefetch={false} aria-current={key === active ? "page" : undefined} className={`flex min-h-[60px] flex-col items-center justify-center gap-1 text-[12px] font-medium ${key === active ? "text-primary" : "text-muted-foreground"}`}>
               <Icon className="size-[22px]" aria-hidden="true" />
               {label}
             </Link>
@@ -150,7 +150,7 @@ export function Footer({ lang, t, closing = false, path = "" }: { lang: Lang; t:
               <ul className="mt-1">
                 {c.links.map(([label, href]) => (
                   <li key={label}>
-                    <Link href={href} className="inline-flex min-h-11 items-center text-primary-foreground/90 underline-offset-4 hover:text-primary-foreground hover:underline">
+                    <Link href={href} prefetch={false} className="inline-flex min-h-11 items-center text-primary-foreground/90 underline-offset-4 hover:text-primary-foreground hover:underline">
                       {label}
                     </Link>
                   </li>

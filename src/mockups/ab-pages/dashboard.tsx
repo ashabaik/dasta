@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ViewTransition } from "react";
 import { ClipboardList, LayoutGrid, MessageSquare, Plus, ShieldCheck, Truck, Wallet } from "lucide-react";
 import { Button } from "@/components/shadcn/button";
-import { asLang, byId, dict, money, name, orders, sumOrders } from "@/mockups/data";
+import { byId, dict, money, name, orders, sumOrders, type Lang } from "@/mockups/data";
 import { BASE, Footer, Header, TabBar } from "@/mockups/ab";
 
 // A working screen: no smooth-scroll layer, nothing held. Motion only answers an action (150-300 ms).
@@ -16,8 +16,7 @@ const TONE: Record<string, string> = {
   refunded: "bg-muted text-muted-foreground",
 };
 
-export default async function DashboardAB({ params }: { params: Promise<{ lang: string }> }) {
-  const lang = asLang((await params).lang);
+export function DashboardAB({ lang }: { lang: Lang }) {
   const t = dict(lang);
   // Every figure is added up from the orders listed below it.
   const tiles = [

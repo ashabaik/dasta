@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ViewTransition } from "react";
 import { ArrowRight, Briefcase, CookingPot, LayoutGrid, Package, Shirt, Sparkles } from "lucide-react";
 import { Button } from "@/components/shadcn/button";
-import { asLang, byId, categoryCover, dastaCategories, dastaCount, dastaProducts, dict, name } from "@/mockups/data";
+import { byId, categoryCover, dastaCategories, dastaCount, dastaProducts, dict, name, type Lang } from "@/mockups/data";
 import { BASE, Card, Footer, Header, TabBar } from "@/mockups/ab";
 import { HomeMotion } from "@/mockups/home-motion";
 
@@ -11,8 +11,7 @@ const CAT_ICON: Record<string, typeof Package> = { home: CookingPot, office: Bri
 // Aligns a full-bleed block's text with the 1240px page container.
 const EDGE = "lg:ps-[max(2rem,calc((100vw-1240px)/2+2rem))]";
 
-export default async function HomeAB({ params }: { params: Promise<{ lang: string }> }) {
-  const lang = asLang((await params).lang);
+export function HomeAB({ lang }: { lang: Lang }) {
   const t = dict(lang);
   const ar = lang === "ar";
   const covers = Object.values(categoryCover);
