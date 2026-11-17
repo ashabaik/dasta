@@ -265,3 +265,37 @@ html {
 
 /* Arabic letters join; letter-spacing pulls the joins apart. */
 [lang="ar"], [lang="ar"] * { letter-spacing: 0 !important; }
+
+/* ---- Dasta (ab) ---------------------------------------------------------------------------- */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Opening states of the home page. They apply only under html.has-motion, which a small inline
+   script adds before first paint; without JavaScript, or with reduced motion, the page is complete
+   and still. The photograph is visible from the first paint (inset and slightly enlarged), so the
+   largest element is never held back by the animation. */
+html.has-motion [data-hero-text],
+html.has-motion [data-closing-text] { visibility: hidden; }
+html.has-motion [data-hero-fade] { opacity: 0; }
+html.has-motion [data-hero-media] { clip-path: inset(9% 9% 9% 9% round 28px); }
+html.has-motion [data-hero-img] { transform: scale(1.16); }
+html.has-motion [data-photo-reveal] { clip-path: inset(0% 0% 100% 0%); }
+/* Line masks from the text split: leave room for descenders and Arabic marks. */
+.sl-mask { padding-block: 0.1em; margin-block: -0.1em; }
+
+/* The signature scene while it is held (desktop, motion on): one screen tall, row free to travel. */
+.mk-ab [data-cat-scene].is-held { height: 100svh; display: flex; align-items: center; overflow: clip; padding-top: 72px; }
+.mk-ab [data-cat-scene].is-held [data-cat-track] { overflow: visible; width: 100%; will-change: transform; }
+
+/* The ending: the white page lifts like a curtain and the last screen is already waiting under it.
+   Plain CSS, no script. Only where the last screen fits the window, and not with reduced motion. */
+@media (min-width: 1024px) and (min-height: 720px) and (prefers-reduced-motion: no-preference) {
+  .mk-ab .curtain { position: relative; z-index: 1; background: var(--background); border-end-start-radius: 44px; border-end-end-radius: 44px; }
+  .mk-ab .last-screen { position: sticky; bottom: 0; z-index: 0; min-height: 100svh; }
+}
+
+/* Page-to-page cuts: the product photograph travels from the list to its page. */
+::view-transition-group(.morph) { animation-duration: 450ms; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}

@@ -60,7 +60,7 @@ function Swatches({ colours }: { colours: string[] }) {
   );
 }
 
-function PageLinks({ k, name }: { k: string; name: string }) {
+function PageLinks({ k, name, extra = [] }: { k: string; name: string; extra?: { label: string; path: string }[] }) {
   return (
     <table className="mt-6 w-full max-w-[420px] text-[16px]">
       <thead className="sr-only">
@@ -71,7 +71,7 @@ function PageLinks({ k, name }: { k: string; name: string }) {
         </tr>
       </thead>
       <tbody>
-        {pages.map((pg) => (
+        {[...pages, ...extra].map((pg) => (
           <tr key={pg.label} className="border-t border-border">
             <th scope="row" className="py-1 text-start font-medium">
               {pg.label}
@@ -126,9 +126,12 @@ export default function MockupIndex() {
           <p className="mt-3 max-w-[52ch]">
             <span className="font-medium">From A:</span> tall photographs with no box, border or shadow, more white space, the light hero photograph, and deep green as the only accent.
           </p>
+          <p className="mt-3 max-w-[52ch]">
+            <span className="font-medium">Motion:</span> the home page opens with one directed entrance and holds one scene while the categories travel sideways; the page then lifts to show the last screen. Product, dashboard and sign-in stay still and fast.
+          </p>
           <p className="mt-3 max-w-[52ch] text-[15px] text-muted-foreground">Type: B&rsquo;s throughout. Bricolage Grotesque with Readex Pro.</p>
           <Swatches colours={merged.swatches} />
-          <PageLinks k={merged.key} name="Dasta merged" />
+          <PageLinks k={merged.key} name="Dasta merged" extra={[{ label: "Sign in", path: "/signin" }]} />
         </div>
       </section>
 

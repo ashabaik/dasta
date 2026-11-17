@@ -1,4 +1,4 @@
-import { BadgeCheck, MessageSquare, Minus, Plus, ShieldCheck, Star } from "lucide-react";
+import { BadgeCheck, MessageSquare, Minus, Plus, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/shadcn/button";
 import { Separator } from "@/components/shadcn/separator";
 import { asLang, byId, categories, dict, money, name, products, unit } from "@/mockups/data";
@@ -96,10 +96,6 @@ export default async function ProductA({ params }: { params: Promise<{ lang: str
                   </span>
                 </p>
               </div>
-              <p className="flex items-center gap-1.5">
-                <Star className="size-[18px] fill-foreground" aria-hidden="true" />
-                <span className="num font-medium">{p.rating}</span> <span className="text-muted-foreground">{t.rating}</span>
-              </p>
             </div>
 
             <div>
