@@ -145,13 +145,14 @@ cost; the moderation queue and strikes handle the rest.
 
 | Command | What it runs | Count |
 | --- | --- | --- |
-| `npm run test:unit` | Pure logic, no network | **93 tests** |
+| `npm run test:unit` | Pure logic, no network | **97 tests** |
 | `npm run test:db` | The real database API of the test project | **121 tests** |
 | `npm run test:crawl` | Builds the app against the test project, opens every page as 6 kinds of visitor | about 80 to 125 pages per visitor, plus access and webhook checks |
 
-Unit tests (93): contact filter 80 (phone numbers in three digit scripts, hidden with invisible
+Unit tests (97): contact filter 80 (phone numbers in three digit scripts, hidden with invisible
 characters, spelled out, split over messages; e-mails; links; handles; and 21 ordinary sentences about
-parts in English and Arabic that must pass), payment signature 5, photo metadata 4, money 4.
+parts in English and Arabic that must pass), payment signature 5, photo metadata 4, money 4, sample images 4 (every listing has one, every
+third-party photo has an author, a free licence and a source).
 
 Database tests (121):
 
@@ -191,6 +192,17 @@ You need Node 24 and two free Supabase projects (one for the demo data, one for 
 On Vercel the app needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`,
 `SUPABASE_SECRET_KEY`, `DEMO_USER_PASSWORD`, `PAYMENT_HMAC_SECRET`, `DATABASE_URL` and `CRON_SECRET`.
 
+## Images on the sample listings
+
+Every sample listing has one image, for illustration only. None is a picture of an actual item for sale.
+
+- **10 photos** are freely licensed works from Wikimedia Commons (CC0, public domain, CC BY, CC BY-SA).
+  Each was checked for brand marks, resized and re-encoded. Author, licence and source page of each are
+  in [`scripts/seed-images/credits.json`](scripts/seed-images/credits.json) and on the demo's
+  [Image credits](https://makbas-nu.vercel.app/en/credits) page. They stay under their own licences.
+- **20 drawings** were made for this project ([`scripts/draw-parts.py`](scripts/draw-parts.py)).
+- No AI-generated images are used.
+
 ## Design assumptions
 
 - **The platform is the merchant of record and the shipper.** Invoices and waybills carry the platform's
@@ -227,4 +239,5 @@ tests/unit, tests/db   unit tests and database tests
 
 ## Licence
 
-MIT. See [LICENSE](LICENSE).
+MIT for the code and the drawings. See [LICENSE](LICENSE). The ten third-party photos in
+`scripts/seed-images/` are not covered by it: each keeps the licence listed in `credits.json`.
