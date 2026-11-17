@@ -23,3 +23,9 @@ export default async function AdminOrdersPage({ params }: { params: Promise<{ lo
     </>
   );
 }
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const p = await params;
+  const t = getDict(asLocale(p.locale));
+  return { title: `${t.titles.admin} · ${t.adminNav.orders}` };
+}

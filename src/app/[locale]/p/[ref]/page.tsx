@@ -13,7 +13,7 @@ type Detail = CardProduct & {
   seller_id: string;
   description_en: string;
   description_ar: string;
-  sellers: { code: string; region: string; verified: boolean; joined_month: string };
+  sellers: { code: string; region: string; verified: boolean; joined_month: string; rating_avg: number | null; rating_count: number };
 };
 
 type Search = Record<string, string | string[] | undefined>;
@@ -29,7 +29,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
   const { data } = await supabase
     .from("products")
     .select(
-      "id, seller_id, ref, title_en, title_ar, part_number, condition, specs, description_en, description_ar, price_piastres, stock, categories!inner(slug, name_en, name_ar), sellers!inner(code, region, verified, joined_month), product_images(path, sort)",
+      "id, seller_id, ref, title_en, title_ar, part_number, condition, specs, description_en, description_ar, price_piastres, stock, categories!inner(slug, name_en, name_ar), sellers!inner(code, region, verified, joined_month, rating_avg, rating_count), product_images(path, sort)",
     )
     .eq("ref", p0.ref)
     .maybeSingle();
@@ -48,7 +48,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
     <>
       <p className="mt-5 text-sm">
         <Link href={`/${locale}`} className="text-steel">
-          ← {t.product.back}
+          <span className="arrow" aria-hidden="true">←</span> {t.product.back}
         </Link>
       </p>
       <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-[1.1fr_1fr]">
@@ -155,4 +155,12 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
       ) : null}
     </>
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; ref: string }> }) {
+  const p = await params;
+  const locale = asLocale(p.locale);
+  const supabase = await supabaseServer();
+  const { data } = await supabase.from("products").select("title_en, title_ar").eq("ref", p.ref).maybeSingle();
+  return { title: data ? pick(data, "title", locale) : getDict(locale).errors.notFound };
 }

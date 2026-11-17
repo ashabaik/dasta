@@ -7,8 +7,13 @@ import { targetEnv, targetFromArgs } from "./env.mjs";
 import { users, sellers, products, sampleOrders, sampleThreads, sellerIdentity, buyerIdentity } from "./seed-data.mjs";
 import { checkText } from "../src/lib/contact-filter.ts";
 
-export async function seed(target, { quiet = false } = {}) {
-  const env = targetEnv(target);
+export async function seed(target, opts = {}) {
+  return seedWithEnv(targetEnv(target), opts);
+}
+
+/** env: { target, databaseUrl, supabaseUrl, secretKey, demoPassword } */
+export async function seedWithEnv(env, { quiet = false } = {}) {
+  const target = env.target;
   const log = (...a) => quiet || console.log(...a);
   const admin = createClient(env.supabaseUrl, env.secretKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const db = new pg.Client({ connectionString: env.databaseUrl.replace(/[?&]sslmode=[^&]*/, ""), ssl: { rejectUnauthorized: false } });
@@ -17,7 +22,7 @@ export async function seed(target, { quiet = false } = {}) {
     // 1. wipe
     await db.query("truncate private.chat_strikes, private.message_originals, public.messages, public.threads");
     await db.query(`truncate private.ledger_entries, private.ledger_txns, private.payouts, private.webhook_events,
-      private.payment_intents, private.dispute_notes, public.disputes, public.order_events, public.orders`);
+      private.payment_intents, private.dispute_notes, public.disputes, public.order_events, public.order_ratings, public.orders`);
     await db.query("update private.settings set value = '800'::jsonb where key = 'commission_bps'");
     await db.query("delete from public.sellers");   // cascades to products, images, private rows
     await db.query("delete from public.buyers");

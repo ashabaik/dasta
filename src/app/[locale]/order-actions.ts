@@ -21,6 +21,7 @@ function errorKey(message: string | undefined): string {
   if (m.includes("too_many_pending")) return "tooManyPending";
   if (m.includes("not_available")) return "notAvailable";
   if (m.includes("nothing_to_pay")) return "nothingToPay";
+  if (m.includes("already_rated")) return "alreadyRated";
   if (m.includes("not_found")) return "notFound";
   if (m.includes("not_allowed") || m.includes("permission denied")) return "notAllowed";
   if (m.includes("invalid_input") || m.includes("invalid input")) return "invalid";
@@ -114,4 +115,13 @@ export async function setCommission(formData: FormData) {
     : { error: { message: "invalid_input" } };
   revalidatePath(`/${locale}`, "layout");
   redirect(`/${locale}/admin/money${error ? `?error=${errorKey(error.message)}` : ""}`);
+}
+
+export async function rateOrder(formData: FormData) {
+  const locale = asLocale(str(formData, "locale"));
+  const no = str(formData, "no");
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("buyer_rate_order", { p_no: no, p_stars: Number.parseInt(str(formData, "stars"), 10) || 0 });
+  revalidatePath(`/${locale}`, "layout");
+  redirect(`/${locale}/orders/${encodeURIComponent(no)}?${error ? `error=${errorKey(error.message)}` : "rated=1"}`);
 }

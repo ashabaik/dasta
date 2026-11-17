@@ -11,7 +11,7 @@ export default async function SellerPublicPage({ params }: { params: Promise<{ l
   const supabase = await supabaseServer();
 
   // The sellers table holds public columns only. There is no name, phone or address to select here.
-  const { data: seller } = await supabase.from("sellers").select("id, code, region, verified, joined_month").eq("code", p0.code).eq("status", "active").maybeSingle();
+  const { data: seller } = await supabase.from("sellers").select("id, code, region, verified, joined_month, rating_avg, rating_count").eq("code", p0.code).eq("status", "active").maybeSingle();
   if (!seller) notFound();
 
   const [{ data: regions }, { data: products }] = await Promise.all([
@@ -37,6 +37,16 @@ export default async function SellerPublicPage({ params }: { params: Promise<{ l
           <dd>{seller.verified ? <span className="font-medium text-ok">✓ {t.seller.verified}</span> : t.seller.notVerified}</dd>
           <dt className="text-muted">{t.seller.memberSince}</dt>
           <dd>{formatMonth(seller.joined_month, locale)}</dd>
+          <dt className="text-muted">{t.rating.label}</dt>
+          <dd>
+            {seller.rating_count > 0 ? (
+              <>
+                <span className="code">★ {Number(seller.rating_avg).toFixed(1)}</span> <span className="text-muted">({t.rating.count(seller.rating_count)})</span>
+              </>
+            ) : (
+              <span className="text-muted">{t.rating.count(0)}</span>
+            )}
+          </dd>
         </dl>
         <p className="notice">{t.seller.publicProfileLead}</p>
       </div>
@@ -49,4 +59,10 @@ export default async function SellerPublicPage({ params }: { params: Promise<{ l
       </div>
     </>
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; code: string }> }) {
+  const p = await params;
+  const t = getDict(asLocale(p.locale));
+  return { title: `${t.seller.label} ${p.code}` };
 }

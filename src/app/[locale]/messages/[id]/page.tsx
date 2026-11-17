@@ -34,18 +34,19 @@ export default async function ThreadPage({ params, searchParams }: { params: Pro
   const list = messages ?? [];
   const strikes = mine?.[0]?.strikes ?? 0;
   const suspended = mine?.[0]?.suspended ?? false;
-  const other = viewer.role === "buyer" ? `${t.seller.label} ${thread.seller_code}` : viewer.role === "seller" ? `${t.orders.buyer} ${thread.buyer_code}` : `${thread.buyer_code} ↔ ${thread.seller_code}`;
+  const otherLabel = viewer.role === "buyer" ? t.seller.label : viewer.role === "seller" ? t.orders.buyer : "";
+  const otherCode = viewer.role === "buyer" ? thread.seller_code : viewer.role === "seller" ? thread.buyer_code : `${thread.buyer_code} ↔ ${thread.seller_code}`;
 
   return (
     <div className="mx-auto max-w-3xl">
       <p className="mt-5 text-sm">
         <Link href={`/${locale}/messages`} className="text-steel">
-          ← {c.title}
+          <span className="arrow" aria-hidden="true">←</span> {c.title}
         </Link>
       </p>
       <div className="mt-2 flex flex-wrap items-baseline justify-between gap-2">
         <h1 className="text-xl font-semibold">
-          {c.withParty} <span className="code">{other}</span>
+          {c.withParty} {otherLabel} <span className="code">{otherCode}</span>
         </h1>
         <Link href={`/${locale}/p/${thread.product_ref}`} className="text-sm text-steel">
           {c.about}: {pick(thread, "title", locale)}
@@ -107,4 +108,10 @@ export default async function ThreadPage({ params, searchParams }: { params: Pro
       ) : null}
     </div>
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }) {
+  const p = await params;
+  const t = getDict(asLocale(p.locale));
+  return { title: t.titles.messages };
 }

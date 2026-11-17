@@ -92,7 +92,7 @@ export function Money({ piastres, locale, className = "" }: { piastres: number; 
   );
 }
 
-export type PublicSeller = { code: string; region: string; verified: boolean };
+export type PublicSeller = { code: string; region: string; verified: boolean; rating_avg?: number | null; rating_count?: number };
 
 /** The only way a seller is ever shown to a buyer: code, verified mark, region. Never a name. */
 export function SellerChip({ seller, regionName, t, locale, link = true }: { seller: PublicSeller; regionName: string; t: Dict; locale: Locale; link?: boolean }) {
@@ -112,6 +112,11 @@ export function SellerChip({ seller, regionName, t, locale, link = true }: { sel
       )}
       {seller.verified ? <span className="font-medium text-ok">✓ {t.seller.verified}</span> : null}
       <span>{regionName}</span>
+      {seller.rating_count ? (
+        <span title={t.rating.count(seller.rating_count)}>
+          <span className="code">★ {Number(seller.rating_avg).toFixed(1)}</span> ({seller.rating_count})
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -185,4 +190,4 @@ export function ProductCard({ p, t, locale, regions }: { p: CardProduct; t: Dict
 }
 
 export const CARD_SELECT =
-  "ref, title_en, title_ar, part_number, condition, specs, price_piastres, stock, categories!inner(slug, name_en, name_ar), sellers!inner(code, region, verified), product_images(path, sort)";
+  "ref, title_en, title_ar, part_number, condition, specs, price_piastres, stock, categories!inner(slug, name_en, name_ar), sellers!inner(code, region, verified, rating_avg, rating_count), product_images(path, sort)";

@@ -12,11 +12,14 @@ const plexSans = IBM_Plex_Sans({ variable: "--font-plex-sans", subsets: ["latin"
 const plexArabic = IBM_Plex_Sans_Arabic({ variable: "--font-plex-arabic", subsets: ["arabic"], weight: ["400", "500", "600"] });
 const plexMono = IBM_Plex_Mono({ variable: "--font-plex-mono", subsets: ["latin"], weight: ["400", "500"] });
 
-export const metadata: Metadata = {
-  title: { default: "Makbas", template: "%s · Makbas" },
-  description: "Makbas: a demo B2B marketplace for industrial spare parts with anonymous sellers and escrow. Sample data only.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const t = getDict(asLocale((await params).locale));
+  return {
+    title: { default: t.brand, template: `%s · ${t.brand}` },
+    description: `${t.brand}: ${t.tagline}. ${t.demoNotice}.`,
+    robots: { index: false, follow: false },
+  };
+}
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
@@ -74,7 +77,12 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <main className="wrap flex-1 pb-12">{children}</main>
         <footer className="border-t border-line py-5 text-[13px] text-muted">
           <div className="wrap space-y-1">
-            <p>{t.footer.line}</p>
+            <p>
+              {t.footer.line}{" "}
+              <Link href={`/${locale}/about`} className="text-steel">
+                {t.about.link}
+              </Link>
+            </p>
             <p>{t.footer.assumption}</p>
           </div>
         </footer>

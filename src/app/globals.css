@@ -44,6 +44,14 @@ body {
   unicode-bidi: isolate;
 }
 
+/* Back arrows point the other way in right-to-left pages. */
+.arrow {
+  display: inline-block;
+}
+[dir="rtl"] .arrow {
+  transform: scaleX(-1);
+}
+
 @layer components {
   .wrap {
     @apply mx-auto w-full max-w-[1120px] px-4;

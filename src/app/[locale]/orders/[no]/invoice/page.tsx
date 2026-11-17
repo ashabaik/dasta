@@ -25,7 +25,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ locale
     <div className="mx-auto mt-6 max-w-2xl">
       <p className="text-sm print:hidden">
         <Link href={`/${locale}/orders/${order.no}`} className="text-steel">
-          ← {v.back}
+          <span className="arrow" aria-hidden="true">←</span> {v.back}
         </Link>
       </p>
       <article className="card mt-3 space-y-5 p-6" data-testid="invoice">
@@ -81,4 +81,10 @@ export default async function InvoicePage({ params }: { params: Promise<{ locale
       </article>
     </div>
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; no: string }> }) {
+  const p = await params;
+  const t = getDict(asLocale(p.locale));
+  return { title: `${t.orders.invoice.title} ${p.no}` };
 }

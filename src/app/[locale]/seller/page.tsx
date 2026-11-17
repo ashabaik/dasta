@@ -199,7 +199,11 @@ export default async function SellerDashboard({ params, searchParams }: { params
             <tbody>
               {list.map((p) => (
                 <tr key={p.ref}>
-                  <td className="code whitespace-nowrap">{p.part_number}</td>
+                  <td className="code whitespace-nowrap">
+                    <Link href={`/${locale}/seller/products/${p.ref}`} className="text-steel">
+                      {p.part_number}
+                    </Link>
+                  </td>
                   <td className="min-w-48">{pick(p, "title", locale)}</td>
                   <td className="whitespace-nowrap">
                     <Money piastres={p.price_piastres} locale={locale} />
@@ -223,4 +227,10 @@ export default async function SellerDashboard({ params, searchParams }: { params
       )}
     </>
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const p = await params;
+  const t = getDict(asLocale(p.locale));
+  return { title: t.titles.seller };
 }

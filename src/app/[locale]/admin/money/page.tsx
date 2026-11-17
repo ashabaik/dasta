@@ -151,3 +151,9 @@ export default async function AdminMoneyPage({ params, searchParams }: { params:
     </>
   );
 }
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const p = await params;
+  const t = getDict(asLocale(p.locale));
+  return { title: `${t.titles.admin} · ${t.adminNav.money}` };
+}

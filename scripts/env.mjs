@@ -34,6 +34,7 @@ export function targetEnv(target) {
     secretKey: need("SUPABASE_SECRET_KEY"),
     demoPassword: need("DEMO_USER_PASSWORD"),
     paymentHmacSecret: need("PAYMENT_HMAC_SECRET"),
+    cronSecret: need("CRON_SECRET"),
     demoSupabaseUrl: v.SUPABASE_URL,
   };
 }

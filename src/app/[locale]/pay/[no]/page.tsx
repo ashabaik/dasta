@@ -50,9 +50,15 @@ export default async function MockPayPage({ params }: { params: Promise<{ locale
       </div>
       <p className="mt-3 text-sm">
         <Link href={`/${locale}/orders/${order.no}`} className="text-steel">
-          ← {t.pay.back}
+          <span className="arrow" aria-hidden="true">←</span> {t.pay.back}
         </Link>
       </p>
     </div>
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; no: string }> }) {
+  const p = await params;
+  const t = getDict(asLocale(p.locale));
+  return { title: `${t.titles.pay} ${p.no}` };
 }

@@ -6,7 +6,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { formatDateTime } from "@/lib/format";
 import { Money } from "@/components/ui";
 import { EscrowTimeline, ORDER_SELECT, OrderHistory, StatusPill, type OrderRow } from "@/components/orders";
-import { orderStep } from "../../order-actions";
+import { orderStep, rateOrder } from "../../order-actions";
 import { openThread } from "../../chat-actions";
 
 type Search = Record<string, string | string[] | undefined>;
@@ -41,10 +41,12 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
   const { data } = await supabase.from("orders").select(`id, ${ORDER_SELECT}`).eq("no", p0.no).maybeSingle();
   if (!data) notFound();
   const order = data as unknown as OrderRow & { id: string };
-  const [{ data: events }, { data: dispute }] = await Promise.all([
+  const [{ data: events }, { data: dispute }, { data: rating }] = await Promise.all([
     supabase.from("order_events").select("type, actor, created_at").eq("order_id", order.id).order("id"),
     supabase.from("disputes").select("reason_code, status, opened_at, resolved_at").eq("order_id", order.id).maybeSingle(),
+    supabase.from("order_ratings").select("stars").eq("order_id", order.id).maybeSingle(),
   ]);
+  const rated = String((await searchParams).rated ?? "");
   const notes = viewer.role === "admin" && dispute ? ((await supabase.rpc("admin_dispute_notes", { p_no: order.no })).data ?? []) : [];
 
   return (
@@ -120,7 +122,9 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
                 <dt className="text-muted">{o.waybill.shipper}</dt>
                 <dd>{o.waybill.shipperValue}</dd>
                 <dt className="text-muted">{o.waybill.consignee}</dt>
-                <dd>{o.waybill.consigneeValue(order.buyer_code)}</dd>
+                <dd>
+                  {o.buyer} <span className="code">{order.buyer_code}</span>. {o.waybill.consigneeNote}
+                </dd>
               </dl>
             </div>
           ) : null}
@@ -229,9 +233,42 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
             <p className="text-[13px] text-muted">{t.product.privacyNote}</p>
           </div>
 
+          {order.status === "completed" && (rating || viewer.role === "buyer") ? (
+            <div className="card space-y-2" data-testid="rating">
+              <h2 className="text-sm font-semibold">{rating ? t.rating.yours : t.rating.title}</h2>
+              {rated ? <p className="pill pill-ok">{t.rating.rated}</p> : null}
+              {rating ? (
+                <p>
+                  <span className="code text-lg text-accent" aria-hidden="true">
+                    {"★".repeat(rating.stars)}
+                    <span className="text-line">{"★".repeat(5 - rating.stars)}</span>
+                  </span>{" "}
+                  <span className="text-sm text-muted">{t.rating.of5(rating.stars)}</span>
+                </p>
+              ) : (
+                <form action={rateOrder} className="flex flex-wrap gap-1.5">
+                  <input type="hidden" name="locale" value={locale} />
+                  <input type="hidden" name="no" value={order.no} />
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button key={n} type="submit" name="stars" value={n} className="btn btn-ghost btn-sm" aria-label={t.rating.of5(n)} data-testid={`rate-${n}`}>
+                      <span className="code">{n} ★</span>
+                    </button>
+                  ))}
+                </form>
+              )}
+              <p className="text-[13px] text-muted">{t.rating.hint}</p>
+            </div>
+          ) : null}
+
           <OrderHistory events={events ?? []} t={t} locale={locale} />
         </div>
       </div>
     </>
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; no: string }> }) {
+  const p = await params;
+  const t = getDict(asLocale(p.locale));
+  return { title: `${t.titles.order} ${p.no}` };
 }

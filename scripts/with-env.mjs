@@ -17,6 +17,8 @@ const child = spawn(cmd.join(" "), {
     SUPABASE_SECRET_KEY: env.secretKey,
     DEMO_USER_PASSWORD: env.demoPassword,
     PAYMENT_HMAC_SECRET: env.paymentHmacSecret,
+    CRON_SECRET: env.cronSecret,
+    DATABASE_URL: env.databaseUrl,
   },
 });
 child.on("exit", (code) => process.exit(code ?? 1));

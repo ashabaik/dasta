@@ -109,7 +109,11 @@ export function OrdersTable({ orders, t, locale, party }: { orders: OrderRow[]; 
         <tbody>
           {orders.map((o) => (
             <tr key={o.no}>
-              <td className="code whitespace-nowrap font-medium">{o.no}</td>
+              <td className="code whitespace-nowrap font-medium">
+                <Link href={`/${locale}/orders/${o.no}`} className="text-steel">
+                  {o.no}
+                </Link>
+              </td>
               <td className="min-w-44">
                 {pick(o, "title", locale)}
                 <span className="code block text-xs text-muted">
