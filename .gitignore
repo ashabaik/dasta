@@ -1,16 +1,28 @@
 # secrets - never commit
 .dev.vars
-.env
-.env.*
+.env*
 !.env.example
+*.pem
 
-# local tooling
+# dependencies
+/node_modules
+
+# next.js / build output
+/.next/
+/out/
+/build
+/coverage
+*.tsbuildinfo
+next-env.d.ts
+
+# tooling
+.vercel
 .venv/
 __pycache__/
-*.pyc
-.pytest_cache/
-node_modules/
-.vercel/
-dist/
+/test-results/
+/playwright-report/
+
+# misc
 .DS_Store
 Thumbs.db
+npm-debug.log*
