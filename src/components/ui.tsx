@@ -79,7 +79,7 @@ export function CategoryArt({ slug, label }: { slug: string; label: string }) {
       <svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         {ICONS[slug] ?? <rect x="14" y="14" width="36" height="36" rx="3" />}
       </svg>
-      <span className="text-xs">{label}</span>
+      {label ? <span className="text-xs">{label}</span> : null}
     </div>
   );
 }
@@ -160,12 +160,12 @@ export function ProductCard({ p, t, locale, regions }: { p: CardProduct; t: Dict
   const photo = [...p.product_images].sort((a, b) => a.sort - b.sort)[0];
   return (
     <article className="card flex flex-col gap-2.5">
-      <Link href={`/${locale}/p/${p.ref}`} className="block h-28 overflow-hidden rounded bg-tile" tabIndex={-1} aria-hidden="true">
+      <Link href={`/${locale}/p/${p.ref}`} className="block aspect-[4/3] overflow-hidden rounded bg-tile" tabIndex={-1} aria-hidden="true">
         {photo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={imageUrl(photo.path)} alt="" className="h-full w-full object-cover" loading="lazy" />
         ) : (
-          <CategoryArt slug={p.categories.slug} label={t.catalogue.noPhoto} />
+          <CategoryArt slug={p.categories.slug} label="" />
         )}
       </Link>
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">

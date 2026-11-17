@@ -82,6 +82,10 @@ export default async function LocaleLayout({ children, params }: { children: Rea
               <Link href={`/${locale}/about`} className="text-steel">
                 {t.about.link}
               </Link>
+              {" · "}
+              <Link href={`/${locale}/credits`} className="text-steel">
+                {t.media.creditsLink}
+              </Link>
             </p>
             <p>{t.footer.assumption}</p>
           </div>

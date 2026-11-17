@@ -8,6 +8,8 @@ import { createOrder } from "../../order-actions";
 import { openThread } from "../../chat-actions";
 import { CARD_SELECT, CategoryArt, Money, ProductCard, SellerChip, SpecList, imageUrl, type CardProduct, type Spec } from "@/components/ui";
 
+type Photo = { path: string; sort: number; kind: string; credit_author: string | null; credit_license: string | null };
+
 type Detail = CardProduct & {
   id: string;
   seller_id: string;
@@ -29,7 +31,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
   const { data } = await supabase
     .from("products")
     .select(
-      "id, seller_id, ref, title_en, title_ar, part_number, condition, specs, description_en, description_ar, price_piastres, stock, categories!inner(slug, name_en, name_ar), sellers!inner(code, region, verified, joined_month, rating_avg, rating_count), product_images(path, sort)",
+      "id, seller_id, ref, title_en, title_ar, part_number, condition, specs, description_en, description_ar, price_piastres, stock, categories!inner(slug, name_en, name_ar), sellers!inner(code, region, verified, joined_month, rating_avg, rating_count), product_images(path, sort, kind, credit_author, credit_license)",
     )
     .eq("ref", p0.ref)
     .maybeSingle();
@@ -41,7 +43,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
     supabase.from("products").select(CARD_SELECT).eq("seller_id", p.seller_id).eq("status", "active").neq("ref", p.ref).order("ref").limit(3),
   ]);
   const regionNames = Object.fromEntries((regions ?? []).map((r) => [r.key, pick(r, "name", locale)]));
-  const photos = [...p.product_images].sort((a, b) => a.sort - b.sort);
+  const photos = [...(p.product_images as unknown as Photo[])].sort((a, b) => a.sort - b.sort);
   const description = pick(p, "description", locale);
 
   return (
@@ -61,6 +63,20 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
               <CategoryArt slug={p.categories.slug} label={t.catalogue.noPhoto} />
             )}
           </div>
+          {photos[0] && photos[0].kind !== "upload" ? (
+            <p className="text-[13px] text-muted" data-testid="image-caption">
+              {photos[0].kind === "photo" ? (
+                <>
+                  {t.media.photo}: {photos[0].credit_author}, <span className="code">{photos[0].credit_license}</span>.{" "}
+                </>
+              ) : (
+                <>{t.media.drawing}. </>
+              )}
+              <Link href={`/${locale}/credits`} className="text-steel">
+                {t.media.creditsLink}
+              </Link>
+            </p>
+          ) : null}
           {photos.length > 1 ? (
             <div className="grid grid-cols-4 gap-2">
               {photos.slice(1).map((ph) => (

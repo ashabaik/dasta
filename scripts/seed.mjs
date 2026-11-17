@@ -1,6 +1,9 @@
 // Resets the sample data of one Supabase project and seeds it again.
 //   node scripts/seed.mjs --target test
 // Deletes ALL marketplace rows and ALL auth users of that project, then recreates the demo set.
+import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import pg from "pg";
 import { createClient } from "@supabase/supabase-js";
 import { targetEnv, targetFromArgs } from "./env.mjs";
@@ -11,8 +14,8 @@ export async function seed(target, opts = {}) {
   return seedWithEnv(targetEnv(target), opts);
 }
 
-/** env: { target, databaseUrl, supabaseUrl, secretKey, demoPassword } */
-export async function seedWithEnv(env, { quiet = false } = {}) {
+/** env: { target, databaseUrl, supabaseUrl, secretKey, demoPassword }. images: also upload the sample images. */
+export async function seedWithEnv(env, { quiet = false, images = true } = {}) {
   const target = env.target;
   const log = (...a) => quiet || console.log(...a);
   const admin = createClient(env.supabaseUrl, env.secretKey, { auth: { persistSession: false, autoRefreshToken: false } });
@@ -106,6 +109,28 @@ export async function seedWithEnv(env, { quiet = false } = {}) {
       );
     }
 
+    // 5b. one image per sample listing: a freely licensed photo or a drawing made for this project.
+    //     Sources and licences are in scripts/seed-images/credits.json. Every file goes through the same
+    //     re-encoding as a seller's upload.
+    if (images) {
+      const dir = join(process.cwd(), "scripts", "seed-images");
+      const credits = JSON.parse(readFileSync(join(dir, "credits.json"), "utf8"));
+      const { reencodePhoto } = await import("../src/lib/photo.ts");
+      for (const [part, c] of Object.entries(credits)) {
+        const product = (await db.query("select id from public.products where part_number = $1", [part])).rows[0];
+        if (!product) continue;
+        const clean = await reencodePhoto(readFileSync(join(dir, `${part}.jpg`)));
+        const path = `${randomUUID()}.webp`;
+        const up = await admin.storage.from("product-images").upload(path, clean.data, { contentType: "image/webp", cacheControl: "31536000" });
+        if (up.error) throw new Error(`image upload ${part}: ${up.error.message}`);
+        await db.query(
+          `insert into public.product_images (product_id, path, width, height, kind, credit_title, credit_author, credit_license, credit_license_url, credit_source_url)
+           values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          [product.id, path, clean.width, clean.height, c.kind, c.title ?? null, c.author ?? null, c.license ?? null, c.license_url ?? null, c.source_url ?? null],
+        );
+      }
+    }
+
     // 6. sample orders, driven through the real functions so the ledger is consistent
     const asUser = async (key, text, params = []) => {
       await db.query("begin");
@@ -160,7 +185,7 @@ export async function seedWithEnv(env, { quiet = false } = {}) {
     }
 
     const c = await db.query(
-      "select (select count(*) from public.sellers) sellers, (select count(*) from public.products) products, (select count(*) from public.buyers) buyers, (select count(*) from public.orders) orders, (select count(*) from public.messages) messages",
+      "select (select count(*) from public.sellers) sellers, (select count(*) from public.products) products, (select count(*) from public.buyers) buyers, (select count(*) from public.orders) orders, (select count(*) from public.messages) messages, (select count(*) from public.product_images) images",
     );
     log(`seeded ${target}:`, c.rows[0], `users: ${users.length}`);
     return { ids, sellerIds };

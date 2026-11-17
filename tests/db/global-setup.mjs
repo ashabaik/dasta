@@ -27,7 +27,7 @@ export async function setup() {
     await lockClient.end();
     throw new Error("Another heavy run is in progress (advisory lock 7421001 is taken). Try again later.");
   }
-  await seed("test", { quiet: true });
+  await seed("test", { quiet: true, images: process.env.SEED_IMAGES === "1" });
 }
 
 export async function teardown() {

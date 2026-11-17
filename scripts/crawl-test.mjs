@@ -106,6 +106,7 @@ async function expectRedirect(label, cookie, path) {
 }
 
 async function main() {
+  process.env.SEED_IMAGES = "1"; // pages should be crawled with the sample images and their credits
   await setup(); // lock + fresh seed of the TEST project
   let server;
   try {
@@ -140,7 +141,7 @@ async function main() {
       "/en/admin", "/en/seller", "/en/buyer", "/en/seller/products/new", `/en/seller/products/${seller1Ref}`,
       `/en/p/${pendingRef}`, "/en/s/S-W6PA", ...sellers.map((s) => `/en/s/${s.code}`), ...refs.map((r) => `/en/p/${r.ref}`),
       "/en?q=MKPRIV", "/en?q=sample", "/en?q=000", "/en/p/P-NOPE00", "/en/s/S-NOPE",
-      "/en/admin/orders", "/en/admin/money", "/ar/admin/money", "/en/admin/moderation", "/en/messages", "/ar/messages",
+      "/en/admin/orders", "/en/admin/money", "/ar/admin/money", "/en/admin/moderation", "/en/messages", "/ar/messages", "/en/credits", "/ar/credits",
       ...threads.flatMap((t) => [`/en/messages/${t.id}`, `/ar/messages/${t.id}`]),
       ...orders.flatMap((o) => [`/en/orders/${o.no}`, `/ar/orders/${o.no}`, `/en/orders/${o.no}/invoice`, `/en/pay/${o.no}`]),
     ];

@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   cacheComponents: false,
   partialPrefetching: false,
   poweredByHeader: false,
+  // The nightly reset reads the sample images from disk; make sure they are shipped with that function.
+  outputFileTracingIncludes: { "/api/cron/reset": ["./scripts/seed-images/**/*"] },
   experimental: {
     serverActions: { bodySizeLimit: "4mb" },
   },
