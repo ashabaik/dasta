@@ -26,3 +26,6 @@ __pycache__/
 .DS_Store
 Thumbs.db
 npm-debug.log*
+
+# Screen recordings made for review; kept on disk, not in the repository.
+docs/recordings/
