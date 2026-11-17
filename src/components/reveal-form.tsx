@@ -47,7 +47,7 @@ export function RevealForm({ locale, sellers, labels }: { locale: string; seller
       </form>
       {state.error ? <p className="error">{labels.errors[state.error] ?? labels.errors.generic}</p> : null}
       {state.identity ? (
-        <div className="rounded-md border border-held-bg bg-held-bg p-3" data-testid="revealed-identity">
+        <div className="rounded-2xl bg-held-bg p-4" data-testid="revealed-identity">
           <h3 className="text-sm font-semibold text-held">
             {labels.revealed} <span className="code">{state.identity.seller_code}</span>
           </h3>

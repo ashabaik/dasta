@@ -87,7 +87,7 @@ export default async function HomePage({ params, searchParams }: { params: Promi
           {/* On a phone the photograph comes first and is cropped to the lamp; the headline follows it. */}
           <div data-hero-media className="relative order-first mx-4 mt-1 aspect-[5/4] overflow-hidden rounded-[24px] bg-[#d3cfc5] sm:mx-8 sm:aspect-[16/9] lg:order-none lg:mx-0 lg:mt-0 lg:aspect-auto lg:rounded-none lg:rounded-es-[44px]">
             <div data-hero-parallax className="absolute inset-x-0 -top-[5%] h-[110%]">
-              <Image data-hero-img src="/hero.jpg" alt="" fill preload sizes="(min-width: 1024px) 52vw, 100vw" className="object-cover object-[50%_66%] lg:object-[50%_58%]" />
+              <Image data-hero-img src="/hero.jpg" alt="" fill preload fetchPriority="high" quality={60} sizes="(min-width: 1024px) 52vw, 100vw" className="object-cover object-[50%_66%] lg:object-[50%_58%]" />
             </div>
           </div>
         </section>

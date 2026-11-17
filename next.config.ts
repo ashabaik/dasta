@@ -5,6 +5,7 @@ const storageHost = process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.N
 
 const nextConfig: NextConfig = {
   images: {
+    qualities: [60, 75],
     remotePatterns: storageHost ? [{ protocol: "https", hostname: storageHost, pathname: "/storage/v1/object/public/product-images/**" }] : [],
   },
   // Every signed-in page is rendered per request. Nothing private is prerendered or shared between

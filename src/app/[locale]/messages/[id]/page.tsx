@@ -68,11 +68,11 @@ export default async function ThreadPage({ params, searchParams }: { params: Pro
                 {own ? c.you : m.sender === "buyer" ? t.orders.buyer : t.seller.label} · {formatDateTime(m.created_at, locale)}
               </span>
               {stopped ? (
-                <span className="mt-0.5 max-w-[85%] rounded-md border border-dashed border-danger bg-danger-bg px-3 py-1.5 text-[13px] text-danger">
+                <span className="mt-0.5 max-w-[85%] rounded-2xl bg-danger-bg px-3.5 py-2 text-sm text-danger">
                   {m.status === "held" ? c.heldOwn : c.blockedOwn}
                 </span>
               ) : (
-                <span dir="auto" className={`mt-0.5 max-w-[85%] whitespace-pre-line break-words rounded-md border px-3 py-1.5 text-sm ${own ? "border-primary bg-primary text-white" : "border-border bg-background"}`}>
+                <span dir="auto" className={`mt-0.5 max-w-[85%] whitespace-pre-line break-words rounded-2xl px-3.5 py-2 text-[15px] ${own ? "bg-primary text-primary-foreground" : "bg-background"}`}>
                   {m.body}
                 </span>
               )}

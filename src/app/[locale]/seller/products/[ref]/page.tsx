@@ -51,7 +51,7 @@ export default async function EditProductPage({ params, searchParams }: { params
             {photos.map((ph) => (
               <li key={ph.id} className="space-y-1.5">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageUrl(ph.path)} alt="" className="aspect-square w-full rounded border border-border object-cover" />
+                <img src={imageUrl(ph.path)} alt="" className="aspect-square w-full rounded-2xl bg-muted object-cover" />
                 <form action={removePhoto}>
                   <input type="hidden" name="locale" value={locale} />
                   <input type="hidden" name="ref" value={product.ref} />

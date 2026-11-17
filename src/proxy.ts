@@ -11,9 +11,6 @@ function pickLocale(header: string | null): string {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Design mockups are plain pages outside the localised app.
-  if (pathname === "/mockups" || pathname.startsWith("/mockups/")) return NextResponse.next();
-
   // 1. Every page lives under /en or /ar.
   const hasLocale = LOCALES.some((l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`));
   if (!hasLocale) {

@@ -260,22 +260,20 @@ body:has([data-home]) .site-footer {
 }
 
 /* Phones and touch screens: their own opening, written in CSS alone, so no animation library is
-   downloaded there. Same order: photograph, headline, supporting line, actions. */
+   downloaded there. Same order: photograph, headline, supporting line, actions. Only transform and
+   opacity move, so the browser's compositor does the work and the main thread stays free to load. */
 @media (prefers-reduced-motion: no-preference) and (max-width: 1023.98px), (prefers-reduced-motion: no-preference) and (pointer: coarse) {
-  [data-hero-media] {
-    animation: dasta-media 1.3s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
   [data-hero-img] {
     animation: dasta-settle 1.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   [data-hero-text] {
-    animation: dasta-uncover 1s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+    animation: dasta-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
   }
   [data-hero-fade] {
-    animation: dasta-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;
+    animation: dasta-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
   }
   [data-hero-fade] + [data-hero-fade] {
-    animation-delay: 0.8s;
+    animation-delay: 0.7s;
   }
   /* The closing line and its action uncover once, when they scroll into view. */
   html.has-motion [data-closing-text] {
@@ -293,17 +291,9 @@ body:has([data-home]) .site-footer {
     transform: translateY(18px);
   }
 }
-@keyframes dasta-media {
-  from { clip-path: inset(9% 9% 9% 9% round 28px); }
-  to { clip-path: inset(0% 0% 0% 0% round 0px); }
-}
 @keyframes dasta-settle {
-  from { transform: scale(1.16); }
+  from { transform: scale(1.12); }
   to { transform: scale(1); }
-}
-@keyframes dasta-uncover {
-  from { clip-path: inset(0% 0% 100% 0%); transform: translateY(0.3em); }
-  to { clip-path: inset(0% 0% 0% 0%); transform: none; }
 }
 @keyframes dasta-rise {
   from { opacity: 0; transform: translateY(18px); }

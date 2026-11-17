@@ -50,7 +50,7 @@ export default async function AdminMoneyPage({ params, searchParams }: { params:
       <div className="card space-y-3" data-testid="ledger">
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {rows.map(([label, value]) => (
-            <div key={label} className="rounded-lg border border-border border-s-4 border-s-primary bg-background/50 p-3.5">
+            <div key={label} className="rounded-2xl bg-background p-4">
               <dt className="text-[13px] font-medium text-muted-foreground">{label}</dt>
               <dd className="mt-1 text-2xl font-bold">
                 <Money piastres={value} locale={locale} />
