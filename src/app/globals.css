@@ -1,26 +1,128 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-paper: #f4f2ec;
+  --color-surface: #ffffff;
+  --color-tile: #ebe8df;
+  --color-ink: #16191d;
+  --color-muted: #5b636b;
+  --color-line: #d9d5ca;
+  --color-steel: #1f4e79;
+  --color-steel-dark: #173b5c;
+  --color-accent: #d9480f;
+  --color-held: #8a5a0b;
+  --color-held-bg: #fbf1dc;
+  --color-held-line: #ecd9ad;
+  --color-ok: #2a6f47;
+  --color-ok-bg: #e4f1e8;
+  --color-danger: #a4261d;
+  --color-danger-bg: #fbe9e7;
+
+  --font-sans: var(--font-plex-sans), var(--font-plex-arabic), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+[dir="rtl"] body {
+  font-family: var(--font-plex-arabic), var(--font-plex-sans), system-ui, sans-serif;
+}
+
+/* Part numbers, codes, measurements and money keep their left-to-right order inside Arabic text. */
+.code {
+  font-family: var(--font-mono);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-[1120px] px-4;
+  }
+  .card {
+    @apply rounded-md border border-line bg-surface p-4;
+  }
+  .h-section {
+    @apply mb-3 mt-6 text-[13px] font-semibold uppercase tracking-wider text-muted;
+  }
+  [dir="rtl"] .h-section {
+    @apply text-sm tracking-normal;
+  }
+  .btn {
+    @apply inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-steel bg-steel px-3.5 py-2 text-sm font-medium text-white no-underline;
+  }
+  .btn:hover {
+    @apply border-steel-dark bg-steel-dark;
+  }
+  .btn-ghost {
+    @apply border-line bg-surface text-ink;
+  }
+  .btn-ghost:hover {
+    @apply border-steel bg-surface text-steel;
+  }
+  .btn-danger {
+    @apply border-danger bg-surface text-danger;
+  }
+  .btn-danger:hover {
+    @apply border-danger bg-danger-bg text-danger;
+  }
+  .btn-sm {
+    @apply min-h-8 px-2.5 py-1 text-[13px];
+  }
+  .btn:focus-visible,
+  .input:focus-visible,
+  a:focus-visible {
+    @apply outline-2 outline-offset-2 outline-steel;
+  }
+  .input {
+    @apply block min-h-10 w-full rounded-md border border-line bg-surface px-3 py-2 text-[15px] text-ink;
+  }
+  .label {
+    @apply mb-1 block text-[13px] font-medium text-muted;
+  }
+  .tag {
+    @apply inline-block whitespace-nowrap rounded-full border border-line px-2 py-0.5 text-xs text-muted;
+  }
+  .pill {
+    @apply inline-block whitespace-nowrap rounded px-2 py-0.5 text-xs font-medium;
+  }
+  .pill-held {
+    @apply bg-held-bg text-held;
+  }
+  .pill-ok {
+    @apply bg-ok-bg text-ok;
+  }
+  .pill-danger {
+    @apply bg-danger-bg text-danger;
+  }
+  .pill-muted {
+    @apply bg-tile text-muted;
+  }
+  .notice {
+    @apply rounded-md border border-held-line bg-held-bg px-3 py-2 text-[13px] text-held;
+  }
+  .error {
+    @apply rounded-md border border-danger bg-danger-bg px-3 py-2 text-[13px] text-danger;
+  }
+  .table {
+    @apply w-full border-collapse text-start text-sm;
+  }
+  .table th {
+    @apply border-b border-line px-2 py-2 text-start text-[12px] font-semibold uppercase tracking-wide text-muted;
+  }
+  [dir="rtl"] .table th {
+    @apply text-[13px] tracking-normal;
+  }
+  .table td {
+    @apply border-b border-line px-2 py-2 align-middle;
+  }
 }
