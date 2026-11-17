@@ -1,76 +1,115 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-/* Makbas visual identity: deep navy, safety orange, cool light surfaces. Industrial, confident, image-first. */
-@theme {
-  --color-paper: #f1f4f8;
-  --color-surface: #ffffff;
-  --color-tile: #e9eef4;
-  --color-ink: #0f1722;
-  --color-muted: #5a6676;
-  --color-line: #dbe2ea;
-  --color-navy: #0e1a29;
-  --color-navy-2: #16283d;
-  --color-navy-line: #2a3d54;
-  --color-steel: #1b5c98;
-  --color-steel-dark: #144a7c;
-  --color-accent: #f2600c;
-  --color-accent-dark: #d44e04;
-  --color-accent-soft: #fff0e6;
-  --color-held: #8a5a0b;
-  --color-held-bg: #fff4dc;
-  --color-held-line: #f0d9a3;
-  --color-ok: #1b7448;
-  --color-ok-bg: #e2f4e9;
-  --color-danger: #b3261e;
+/* Dasta: a white page with room to breathe, warm light surfaces, heavy headings, one deep green.
+   Photographs lead; nothing sits in a bordered, shadowed box. */
+
+@theme inline {
+  --font-heading: var(--ds-heading);
+  --font-sans: var(--ds-sans);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  /* States. Amber is kept for the one thing that needs action; red for refusals. */
+  --color-held: #7a4b00;
+  --color-held-bg: #fff1d0;
+  --color-danger: #a3241c;
   --color-danger-bg: #fdecea;
-
-  --font-sans: var(--font-plex-sans), var(--font-plex-arabic), system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
-
-  --shadow-card: 0 1px 2px rgb(15 23 34 / 0.05), 0 6px 20px rgb(15 23 34 / 0.05);
-  --shadow-lift: 0 2px 4px rgb(15 23 34 / 0.06), 0 14px 34px rgb(15 23 34 / 0.12);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-html {
-  background: var(--color-paper);
-  color: var(--color-ink);
-  scroll-behavior: smooth;
+:root {
+  --background: #ffffff;
+  --foreground: #121512;
+  --card: #f5f4f1;
+  --card-foreground: #121512;
+  --popover: #ffffff;
+  --popover-foreground: #121512;
+  --muted: #eceae4;
+  --muted-foreground: #5d5c56;
+  --border: #e7e5df;
+  --input: #8f8b80; /* field edges: 3:1 against the page */
+  --primary: #1d5a45;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f4f1;
+  --secondary-foreground: #121512;
+  --accent: #e2efe9;
+  --accent-foreground: #1d5a45;
+  --destructive: #a3241c;
+  --ring: #1d5a45;
+  --radius: 1rem;
+  /* Typefaces come from next/font as --f-display and --f-body (see the root layout). */
+  --ds-sans: var(--f-body), system-ui, sans-serif;
+  --ds-heading: var(--f-display), var(--f-body), system-ui, sans-serif;
+}
+/* Arabic: one family drawn for both scripts carries headings and text. */
+html[lang="ar"] {
+  --ds-heading: var(--f-body), system-ui, sans-serif;
 }
 
-html,
-body {
-  overflow-x: clip;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    font-family: var(--ds-sans);
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: 16px;
+    line-height: 1.6;
+  }
 }
 
-body {
-  font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.55;
+/* One solid focus outline everywhere; white on dark or green bands. */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.on-dark {
+  --ring: #ffffff;
 }
 
-[dir="rtl"] body {
-  font-family: var(--font-plex-arabic), var(--font-plex-sans), system-ui, sans-serif;
-}
-
-h1,
-h2,
-h3 {
-  letter-spacing: -0.012em;
-}
-
-[dir="rtl"] h1,
-[dir="rtl"] h2,
-[dir="rtl"] h3 {
-  letter-spacing: 0;
-}
-
-/* Part numbers, codes, measurements and money keep their left-to-right order inside Arabic text. */
+/* Codes, quantities and money keep their left-to-right order inside Arabic text. */
+.num,
 .code {
-  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   direction: ltr;
   unicode-bidi: isolate;
 }
-
+/* Arabic letters join; letter-spacing pulls the joins apart. */
+[lang="ar"],
+[lang="ar"] * {
+  letter-spacing: 0 !important;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 /* Back arrows point the other way in right-to-left pages. */
 .arrow {
   display: inline-block;
@@ -79,141 +118,261 @@ h3 {
   transform: scaleX(-1);
 }
 
-/* A section that spans the whole window although it sits inside the centred column. */
-.bleed {
-  margin-inline: calc(50% - 50vw);
+/* The page column. The home page runs edge to edge and brings its own containers. */
+main.page:has([data-home]) {
+  max-width: none;
+  padding: 0;
+}
+body:has([data-home]) .site-footer {
+  display: none;
 }
 
-/* Hero: navy with a faint engineering grid. */
-.hero {
-  position: relative;
-  color: #fff;
-  background:
-    radial-gradient(900px 420px at 88% -8%, rgb(48 104 160 / 0.55) 0%, transparent 62%),
-    radial-gradient(600px 300px at 0% 110%, rgb(242 96 12 / 0.18) 0%, transparent 60%),
-    linear-gradient(180deg, #0e1a29 0%, #13263b 100%);
-}
-.hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgb(255 255 255 / 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.055) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: linear-gradient(180deg, #000 0%, transparent 92%);
-}
-
+/* ---- Building blocks for the working screens ---------------------------------------------------- */
 @layer components {
   .wrap {
-    @apply mx-auto w-full max-w-[1180px] px-4;
+    @apply mx-auto w-full max-w-[1240px] px-4 sm:px-8;
   }
   .card {
-    @apply rounded-xl border border-line bg-surface p-4 shadow-card;
+    @apply rounded-[22px] bg-card p-5 sm:p-6;
+  }
+  .page-title {
+    @apply mt-6 font-heading text-[32px] font-bold leading-[1.1] tracking-tight sm:mt-8 sm:text-[44px];
+  }
+  [dir="rtl"] .page-title {
+    line-height: 1.4;
   }
   .h-section {
-    @apply mb-3 mt-8 border-s-4 border-accent ps-3 text-lg font-semibold text-ink;
+    @apply mb-4 mt-10 font-heading text-[24px] font-bold tracking-tight sm:text-[28px];
   }
   .btn {
-    @apply inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-accent bg-accent px-4 py-2 text-sm font-semibold text-white no-underline transition-colors;
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-primary px-5 py-2 text-[15px] font-medium text-primary-foreground no-underline transition-colors duration-200;
   }
   .btn:hover {
-    @apply border-accent-dark bg-accent-dark;
+    @apply bg-primary/90;
   }
   .btn:disabled {
     @apply cursor-not-allowed opacity-60;
   }
   .btn-ghost {
-    @apply border-line bg-surface font-medium text-ink;
+    @apply bg-background text-foreground ring-1 ring-inset ring-input;
   }
   .btn-ghost:hover {
-    @apply border-steel bg-surface text-steel;
+    @apply bg-card;
   }
   .btn-dark {
-    @apply border-navy bg-navy text-white;
+    @apply bg-foreground text-background;
   }
   .btn-dark:hover {
-    @apply border-navy-2 bg-navy-2 text-white;
+    @apply bg-foreground/85;
   }
   .btn-ondark {
-    @apply border-navy-line bg-transparent font-medium text-white;
+    @apply bg-white text-primary;
   }
   .btn-ondark:hover {
-    @apply border-white/60 bg-white/10 text-white;
+    @apply bg-white/90;
   }
   .btn-danger {
-    @apply border-danger bg-surface font-medium text-danger;
+    @apply bg-background text-danger ring-1 ring-inset ring-danger;
   }
   .btn-danger:hover {
-    @apply border-danger bg-danger-bg text-danger;
+    @apply bg-danger-bg;
   }
   .btn-sm {
-    @apply min-h-8 rounded-md px-2.5 py-1 text-[13px];
+    @apply min-h-10 px-4 text-[14px];
   }
   .btn-lg {
-    @apply min-h-12 px-6 text-base;
-  }
-  .btn:focus-visible,
-  .input:focus-visible,
-  a:focus-visible {
-    @apply outline-2 outline-offset-2 outline-accent;
+    @apply min-h-13 px-7 text-[17px];
   }
   .input {
-    @apply block min-h-10 w-full rounded-lg border border-line bg-surface px-3 py-2 text-[15px] text-ink;
+    @apply block min-h-12 w-full rounded-xl border border-input bg-background px-4 py-2 text-base text-foreground;
   }
-  .input:focus {
-    @apply border-steel;
+  textarea.input {
+    @apply py-3;
   }
   .label {
-    @apply mb-1 block text-[13px] font-medium text-muted;
+    @apply mb-1.5 block text-[15px] font-medium text-foreground;
   }
   .tag {
-    @apply inline-block whitespace-nowrap rounded-full border border-line bg-surface px-2.5 py-0.5 text-xs font-medium text-muted;
+    @apply inline-block whitespace-nowrap rounded-full bg-muted px-3 py-1 text-[13px] font-medium text-muted-foreground;
   }
   .pill {
-    @apply inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    @apply inline-block whitespace-nowrap rounded-full px-3 py-1 text-[13px] font-medium;
   }
   .pill-held {
     @apply bg-held-bg text-held;
   }
   .pill-ok {
-    @apply bg-ok-bg text-ok;
+    @apply bg-accent text-accent-foreground;
   }
   .pill-danger {
     @apply bg-danger-bg text-danger;
   }
   .pill-muted {
-    @apply bg-tile text-muted;
+    @apply bg-muted text-muted-foreground;
+  }
+  .pill-plain {
+    @apply bg-background text-foreground ring-1 ring-inset ring-input;
   }
   .notice {
-    @apply rounded-lg border border-held-line bg-held-bg px-3 py-2 text-[13px] text-held;
+    @apply rounded-2xl bg-held-bg px-4 py-3 text-[15px] text-held;
   }
   .error {
-    @apply rounded-lg border border-danger bg-danger-bg px-3 py-2 text-[13px] text-danger;
+    @apply rounded-2xl bg-danger-bg px-4 py-3 text-[15px] text-danger;
   }
   .table {
-    @apply w-full border-collapse text-start text-sm;
+    @apply w-full border-collapse text-start text-[15px];
   }
   .table th {
-    @apply border-b border-line bg-tile px-3 py-2.5 text-start text-[12px] font-semibold uppercase tracking-wide text-muted;
-  }
-  [dir="rtl"] .table th {
-    @apply text-[13px] tracking-normal;
+    @apply border-b border-border px-3 py-2.5 text-start text-[13px] font-medium text-muted-foreground;
   }
   .table td {
-    @apply border-b border-line px-3 py-2.5 align-middle;
+    @apply border-b border-border px-3 py-3 align-middle;
   }
   .table tbody tr:last-child td {
     @apply border-b-0;
   }
-  .table tbody tr:hover td {
-    @apply bg-paper/60;
-  }
   .card:has(> .table) {
-    @apply overflow-hidden;
+    @apply overflow-x-auto p-2 sm:p-3;
   }
-  .page-title {
-    @apply mt-7 text-3xl font-bold;
+}
+
+/* ---- Home page: motion ---------------------------------------------------------------------------
+   Everything below needs html.has-motion, which a small inline script adds before first paint, or a
+   no-preference media query. Without JavaScript, or with reduced motion, the page is complete and
+   still. The photograph is visible from the first paint (inset and slightly enlarged), so the largest
+   element is never held back by the animation. */
+
+/* Desktop (wide, fine pointer): GSAP directs the opening; these are the states it starts from. */
+@media (min-width: 1024px) and (pointer: fine) {
+  html.has-motion [data-hero-text],
+  html.has-motion [data-closing-text] {
+    visibility: hidden;
+  }
+  html.has-motion [data-hero-fade] {
+    opacity: 0;
+  }
+  html.has-motion [data-hero-media] {
+    clip-path: inset(9% 9% 9% 9% round 28px);
+  }
+  html.has-motion [data-hero-img] {
+    transform: scale(1.16);
+  }
+}
+
+/* Phones and touch screens: their own opening, written in CSS alone, so no animation library is
+   downloaded there. Same order: photograph, headline, supporting line, actions. */
+@media (prefers-reduced-motion: no-preference) and (max-width: 1023.98px), (prefers-reduced-motion: no-preference) and (pointer: coarse) {
+  [data-hero-media] {
+    animation: dasta-media 1.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  [data-hero-img] {
+    animation: dasta-settle 1.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  [data-hero-text] {
+    animation: dasta-uncover 1s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+  }
+  [data-hero-fade] {
+    animation: dasta-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;
+  }
+  [data-hero-fade] + [data-hero-fade] {
+    animation-delay: 0.8s;
+  }
+  /* The closing line and its action uncover once, when they scroll into view. */
+  html.has-motion [data-closing-text] {
+    transition: clip-path 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  html.has-motion [data-closing-text]:not(.is-in) {
+    clip-path: inset(0% 0% 100% 0%);
+    transform: translateY(0.3em);
+  }
+  html.has-motion [data-closing-fade] {
+    transition: opacity 0.8s ease 0.35s, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.35s;
+  }
+  html.has-motion [data-closing-fade]:not(.is-in) {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+@keyframes dasta-media {
+  from { clip-path: inset(9% 9% 9% 9% round 28px); }
+  to { clip-path: inset(0% 0% 0% 0% round 0px); }
+}
+@keyframes dasta-settle {
+  from { transform: scale(1.16); }
+  to { transform: scale(1); }
+}
+@keyframes dasta-uncover {
+  from { clip-path: inset(0% 0% 100% 0%); transform: translateY(0.3em); }
+  to { clip-path: inset(0% 0% 0% 0%); transform: none; }
+}
+@keyframes dasta-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Product photographs uncover once, row by row, on every screen. The script only adds .is-in. */
+html.has-motion [data-photo-reveal] {
+  transition: clip-path 1.05s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+html.has-motion [data-photo-reveal]:not(.is-in) {
+  clip-path: inset(0% 0% 100% 0%);
+}
+/* Line masks from the text split: leave room for descenders and Arabic marks. */
+.sl-mask {
+  padding-block: 0.1em;
+  margin-block: -0.1em;
+}
+
+/* The signature scene while it is held (desktop, motion on): one screen tall, row free to travel. */
+[data-cat-scene].is-held {
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: clip;
+  padding-top: 72px;
+}
+[data-cat-scene].is-held [data-cat-track] {
+  overflow: visible;
+  width: 100%;
+  will-change: transform;
+}
+
+/* The ending: the white page lifts like a curtain and the last screen is already waiting under it.
+   Plain CSS, no script. Only where the last screen fits the window, and not with reduced motion. */
+@media (min-width: 1024px) and (min-height: 720px) and (prefers-reduced-motion: no-preference) {
+  .curtain {
+    position: relative;
+    z-index: 1;
+    background: var(--background);
+    border-end-start-radius: 44px;
+    border-end-end-radius: 44px;
+  }
+  .last-screen {
+    position: sticky;
+    bottom: 0;
+    z-index: 0;
+    min-height: 100svh;
+  }
+}
+
+/* Page-to-page cuts: the product photograph travels from the list to its page. */
+::view-transition-group(.morph) {
+  animation-duration: 450ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+@media print {
+  header,
+  footer,
+  .no-print {
+    display: none !important;
   }
 }

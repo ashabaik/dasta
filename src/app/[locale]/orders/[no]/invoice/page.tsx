@@ -4,7 +4,7 @@ import { asLocale, getDict, pick } from "@/lib/i18n";
 import { getViewer } from "@/lib/session";
 import { supabaseServer } from "@/lib/supabase/server";
 import { formatDateTime } from "@/lib/format";
-import { Logo, Money } from "@/components/ui";
+import { Money, Wordmark } from "@/components/ui";
 import { ORDER_SELECT, type OrderRow } from "@/components/orders";
 
 // The invoice carries the platform's name. The seller appears only as a supplier reference (their code).
@@ -24,30 +24,29 @@ export default async function InvoicePage({ params }: { params: Promise<{ locale
   return (
     <div className="mx-auto mt-6 max-w-2xl">
       <p className="text-sm print:hidden">
-        <Link href={`/${locale}/orders/${order.no}`} className="text-steel">
+        <Link href={`/${locale}/orders/${order.no}`} className="text-primary">
           <span className="arrow" aria-hidden="true">←</span> {v.back}
         </Link>
       </p>
       <article className="card mt-3 space-y-5 p-6" data-testid="invoice">
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-2.5 text-xl font-semibold">
-            <Logo />
-            {t.brand}
+            <Wordmark locale={locale} />
           </div>
           <div className="text-end">
             <h1 className="text-xl font-semibold">{v.title}</h1>
-            <p className="code text-sm text-muted">{order.no}</p>
-            <p className="text-[13px] text-muted">{formatDateTime(order.paid_at, locale)}</p>
+            <p className="code text-sm text-muted-foreground">{order.no}</p>
+            <p className="text-[13px] text-muted-foreground">{formatDateTime(order.paid_at, locale)}</p>
           </div>
         </header>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-          <dt className="text-muted">{v.issuedBy}</dt>
+          <dt className="text-muted-foreground">{v.issuedBy}</dt>
           <dd>{v.issuedByValue}</dd>
-          <dt className="text-muted">{v.billedTo}</dt>
+          <dt className="text-muted-foreground">{v.billedTo}</dt>
           <dd>
             {t.orders.buyer} <span className="code">{order.buyer_code}</span>
           </dd>
-          <dt className="text-muted">{v.supplierRef}</dt>
+          <dt className="text-muted-foreground">{v.supplierRef}</dt>
           <dd className="code text-start">{order.seller_code}</dd>
         </dl>
         <div className="overflow-x-auto">
@@ -64,7 +63,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ locale
               <tr>
                 <td>
                   {pick(order, "title", locale)}
-                  <span className="code block text-xs text-muted">{order.part_number}</span>
+                  <span className="code block text-xs text-muted-foreground">{order.part_number}</span>
                 </td>
                 <td className="code">{order.quantity}</td>
                 <td className="whitespace-nowrap">

@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { asLocale, getDict } from "@/lib/i18n";
 import { requireRole } from "@/lib/session";
 import { supabaseServer } from "@/lib/supabase/server";
 import { ORDER_SELECT, OrdersTable, type OrderRow } from "@/components/orders";
 
+// A working screen: no smooth-scroll layer, nothing held.
 export default async function BuyerDashboard({ params }: { params: Promise<{ locale: string }> }) {
   const locale = asLocale((await params).locale);
   const t = getDict(locale);
@@ -16,22 +18,32 @@ export default async function BuyerDashboard({ params }: { params: Promise<{ loc
 
   return (
     <>
-      <h1 className="page-title">{d.title}</h1>
-      <div className="mt-4 grid grid-cols-1 gap-3.5 md:grid-cols-2">
-        <div className="space-y-2 rounded-xl bg-navy p-5 text-white shadow-lift">
-          <h2 className="text-sm font-medium text-white/70">{d.yourCode}</h2>
-          <p className="code text-4xl font-bold tracking-tight">{viewer.buyerCode}</p>
-          <p className="text-[13px] text-white/65">{d.codeHint}</p>
-        </div>
-        <div className="card flex flex-col items-start justify-center gap-3">
-          <p className="text-sm text-muted">{t.product.privacyNote}</p>
-          <Link href={`/${locale}`} className="btn">
-            {d.browse}
-          </Link>
-        </div>
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 pt-6 sm:pt-8">
+        <h1 className="font-heading text-[32px] font-bold leading-[1.1] tracking-tight sm:text-[44px] rtl:leading-[1.4]">{d.title}</h1>
+        <p className="flex flex-wrap items-center gap-2.5 text-[15px]">
+          <span className="text-muted-foreground">{d.yourCode}</span>
+          <span className="num rounded-full bg-card px-3.5 py-1.5 font-semibold">{viewer.buyerCode}</span>
+        </p>
       </div>
-      <h2 className="h-section">{t.orders.title}</h2>
-      <OrdersTable orders={orders} t={t} locale={locale} party="seller" />
+
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-[22px] bg-accent p-5 sm:p-6">
+        <p className="flex min-w-0 flex-1 basis-64 gap-3 text-[15px]">
+          <ShieldCheck className="mt-0.5 size-[22px] shrink-0 text-primary" aria-hidden="true" />
+          <span>
+            <span className="font-semibold">{t.product.orderProtection}.</span> {t.product.privacyNote} {d.codeHint}
+          </span>
+        </p>
+        <Link href={`/${locale}?view=all`} className="btn">
+          {d.browse}
+        </Link>
+      </div>
+
+      <section className="mt-10">
+        <h2 className="font-heading text-[24px] font-bold tracking-tight sm:text-[30px] rtl:leading-[1.4]">{t.orders.title}</h2>
+        <div className="mt-5">
+          <OrdersTable orders={orders} t={t} locale={locale} party="seller" />
+        </div>
+      </section>
     </>
   );
 }

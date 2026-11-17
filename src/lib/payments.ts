@@ -6,7 +6,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
  * query string (?hmac=...). The signature is HMAC-SHA512 (hex) over the values of the fields below,
  * concatenated in exactly this order with no separator. The order is the one Paymob documents at
  * developers.paymob.com (HMAC Transaction Callback), so a real Paymob integration could replace the
- * mock by swapping the secret and the checkout step. No real provider is called anywhere in this demo.
+ * mock by swapping the secret and the checkout step. No real provider is called anywhere: payments run in test mode.
  */
 export const HMAC_FIELDS = [
   "amount_cents",

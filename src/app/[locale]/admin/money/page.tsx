@@ -50,8 +50,8 @@ export default async function AdminMoneyPage({ params, searchParams }: { params:
       <div className="card space-y-3" data-testid="ledger">
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {rows.map(([label, value]) => (
-            <div key={label} className="rounded-lg border border-line border-s-4 border-s-accent bg-paper/50 p-3.5">
-              <dt className="text-[13px] font-medium text-muted">{label}</dt>
+            <div key={label} className="rounded-lg border border-border border-s-4 border-s-primary bg-background/50 p-3.5">
+              <dt className="text-[13px] font-medium text-muted-foreground">{label}</dt>
               <dd className="mt-1 text-2xl font-bold">
                 <Money piastres={value} locale={locale} />
               </dd>
@@ -100,7 +100,7 @@ export default async function AdminMoneyPage({ params, searchParams }: { params:
           </tbody>
         </table>
       </div>
-      <p className="mt-2 text-[13px] text-muted">{m.payoutNote}</p>
+      <p className="mt-2 text-[13px] text-muted-foreground">{m.payoutNote}</p>
 
       <h2 className="h-section">{m.commissionTitle}</h2>
       <form action={setCommission} className="card flex flex-wrap items-end gap-3">
@@ -114,12 +114,12 @@ export default async function AdminMoneyPage({ params, searchParams }: { params:
         <button type="submit" className="btn btn-ghost">
           {m.save}
         </button>
-        <p className="basis-full text-[13px] text-muted">{m.commissionHint}</p>
+        <p className="basis-full text-[13px] text-muted-foreground">{m.commissionHint}</p>
       </form>
 
       <h2 className="h-section">{m.callbacks}</h2>
       {!events || events.length === 0 ? (
-        <p className="card text-muted">{m.noCallbacks}</p>
+        <p className="card text-muted-foreground">{m.noCallbacks}</p>
       ) : (
         <div className="card overflow-x-auto p-0">
           <table className="table">

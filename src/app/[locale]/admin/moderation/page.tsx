@@ -42,17 +42,17 @@ export default async function AdminModerationPage({ params, searchParams }: { pa
 
       <h2 className="h-section">{m.queue}</h2>
       {rows.length === 0 ? (
-        <p className="card text-muted">{m.queueEmpty}</p>
+        <p className="card text-muted-foreground">{m.queueEmpty}</p>
       ) : (
         <ul className="space-y-3" data-testid="moderation-queue">
           {rows.map((r) => (
             <li key={r.message_id} className="card space-y-2">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted-foreground">
                 <span className={`pill ${r.severity === "block" ? "pill-danger" : "pill-held"}`}>{m.severity[r.severity]}</span>
                 <span>
-                  {m.from} <span className="code font-medium text-ink">{r.sender_code}</span> {m.to} <span className="code font-medium text-ink">{r.other_code}</span>
+                  {m.from} <span className="code font-medium text-foreground">{r.sender_code}</span> {m.to} <span className="code font-medium text-foreground">{r.other_code}</span>
                 </span>
-                <Link href={`/${locale}/messages/${r.thread_id}`} className="code text-steel">
+                <Link href={`/${locale}/messages/${r.thread_id}`} className="code text-primary">
                   {r.product_ref}
                 </Link>
                 <span>{formatDateTime(r.created_at, locale)}</span>
@@ -64,7 +64,7 @@ export default async function AdminModerationPage({ params, searchParams }: { pa
                   </span>
                 ))}
               </div>
-              <div className="rounded border border-held-line bg-held-bg p-2.5">
+              <div className="rounded border border-held-bg bg-held-bg p-2.5">
                 <h3 className="text-[12px] font-semibold text-held">{m.text}</h3>
                 <p dir="auto" className="mt-0.5 whitespace-pre-line break-words text-sm">
                   {r.body}
@@ -89,7 +89,7 @@ export default async function AdminModerationPage({ params, searchParams }: { pa
 
       <h2 className="h-section">{m.strikes}</h2>
       {!strikes || strikes.length === 0 ? (
-        <p className="card text-muted">{m.strikesEmpty}</p>
+        <p className="card text-muted-foreground">{m.strikesEmpty}</p>
       ) : (
         <div className="card overflow-x-auto p-0">
           <table className="table" data-testid="strikes-table">
@@ -125,18 +125,18 @@ export default async function AdminModerationPage({ params, searchParams }: { pa
 
       <h2 className="h-section">{m.listings}</h2>
       {!flagged || flagged.length === 0 ? (
-        <p className="card text-muted">{m.listingsEmpty}</p>
+        <p className="card text-muted-foreground">{m.listingsEmpty}</p>
       ) : (
         <ul className="space-y-3" data-testid="flagged-listings">
           {flagged.map((p) => (
             <li key={p.ref} className="card space-y-2">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted-foreground">
                 <span className="pill pill-held">{t.productForm.statusFlagged}</span>
-                <span className="code font-medium text-ink">{(p.sellers as unknown as { code: string }).code}</span>
+                <span className="code font-medium text-foreground">{(p.sellers as unknown as { code: string }).code}</span>
                 <span className="code">{p.part_number}</span>
               </div>
               <p className="font-medium">{pick(p, "title", locale)}</p>
-              <p dir="auto" className="whitespace-pre-line break-words rounded border border-held-line bg-held-bg p-2.5 text-sm">
+              <p dir="auto" className="whitespace-pre-line break-words rounded border border-held-bg bg-held-bg p-2.5 text-sm">
                 {[p.title_en, p.title_ar, p.description_en, p.description_ar, ...(p.specs as { k_en: string; v: string }[]).map((x) => `${x.k_en} = ${x.v}`)].filter(Boolean).join("\n")}
               </p>
               <form action={approveListing}>

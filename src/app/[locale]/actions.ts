@@ -13,8 +13,8 @@ import { checkListing } from "@/lib/contact-filter";
 // Every action below is a public endpoint. Each one either goes through the visitor's own database
 // session (row level security decides) or checks ownership first before using the privileged client.
 
-const DEMO_DOMAIN = "dasta.example";
-const DEMO_ACCOUNTS: Record<string, string> = { buyer: "buyer1", seller: "seller1", admin: "admin" };
+const SAMPLE_DOMAIN = "dasta.example";
+const SAMPLE_ACCOUNTS: Record<string, string> = { buyer: "buyer1", seller: "seller1", admin: "admin" };
 const MAX_THROWAWAY_SELLERS = 300;
 
 const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
@@ -29,7 +29,24 @@ function errorKey(message: string | undefined): string {
   return "generic";
 }
 
-export async function demoSignIn(formData: FormData) {
+/** Ordinary sign-in with an e-mail address and a password. */
+export async function passwordSignIn(formData: FormData) {
+  const locale = asLocale(str(formData, "locale"));
+  const email = str(formData, "email").slice(0, 200);
+  const password = String(formData.get("password") ?? "").slice(0, 200);
+  if (!email || !password) redirect(`/${locale}/signin?error=wrong`);
+  const supabase = await supabaseServer();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) redirect(`/${locale}/signin?error=wrong`);
+  const viewer = await getViewer();
+  redirect(viewer ? `/${locale}/${viewer.role}` : `/${locale}`);
+}
+
+/**
+ * One-click sign-in to a sample account (buyer, supplier, admin), or a brand-new supplier account
+ * created on the spot. The sign-in page says plainly that these are sample accounts.
+ */
+export async function sampleSignIn(formData: FormData) {
   const locale = asLocale(str(formData, "locale"));
   const role = str(formData, "role");
   const supabase = await supabaseServer();
@@ -38,7 +55,7 @@ export async function demoSignIn(formData: FormData) {
     const admin = supabaseAdmin();
     const { count } = await admin.from("sellers").select("id", { count: "exact", head: true });
     if ((count ?? 0) >= MAX_THROWAWAY_SELLERS) redirect(`/${locale}/signin?error=busy`);
-    const email = `new-seller-${randomBytes(6).toString("hex")}@${DEMO_DOMAIN}`;
+    const email = `new-seller-${randomBytes(6).toString("hex")}@${SAMPLE_DOMAIN}`;
     const password = randomBytes(24).toString("base64url");
     const created = await admin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { role: "seller" } });
     if (created.error) redirect(`/${locale}/signin?error=failed`);
@@ -47,9 +64,9 @@ export async function demoSignIn(formData: FormData) {
     redirect(`/${locale}/seller`);
   }
 
-  const account = DEMO_ACCOUNTS[role];
+  const account = SAMPLE_ACCOUNTS[role];
   if (!account) redirect(`/${locale}/signin?error=failed`);
-  const { error } = await supabase.auth.signInWithPassword({ email: `${account}@${DEMO_DOMAIN}`, password: process.env.DEMO_USER_PASSWORD! });
+  const { error } = await supabase.auth.signInWithPassword({ email: `${account}@${SAMPLE_DOMAIN}`, password: process.env.DEMO_USER_PASSWORD! });
   if (error) redirect(`/${locale}/signin?error=failed`);
   redirect(`/${locale}/${role}`);
 }
@@ -91,6 +108,19 @@ function parseSpecs(text: string) {
     });
 }
 
+/** "200 = 62.50" per line -> [{ qty, price_piastres }]. Returns null when a line cannot be read. */
+function parseBreaks(text: string): { qty: number; price_piastres: number }[] | null {
+  const out = [];
+  for (const line of text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)) {
+    const [left, right] = line.split("=");
+    const qty = Number.parseInt((left ?? "").replace(/[,\s]/g, ""), 10);
+    const price = parseEgpToPiastres(right ?? "");
+    if (!Number.isInteger(qty) || qty < 1 || price === null) return null;
+    out.push({ qty, price_piastres: price });
+  }
+  return out.sort((a, b) => a.qty - b.qty);
+}
+
 export async function saveProduct(formData: FormData) {
   const locale = asLocale(str(formData, "locale"));
   const ref = str(formData, "ref");
@@ -101,15 +131,23 @@ export async function saveProduct(formData: FormData) {
   const price = parseEgpToPiastres(str(formData, "price"));
   const stock = Number.parseInt(str(formData, "stock"), 10);
   const categoryId = Number.parseInt(str(formData, "category_id"), 10);
-  if (price === null || !Number.isInteger(stock) || !Number.isInteger(categoryId)) redirect(`${back}?error=invalid`);
+  const minOrder = Number.parseInt(str(formData, "min_order_qty") || "1", 10);
+  const leadDays = Number.parseInt(str(formData, "lead_days") || "3", 10);
+  const priceBreaks = parseBreaks(String(formData.get("price_breaks") ?? ""));
+  if (price === null || !Number.isInteger(stock) || !Number.isInteger(categoryId) || !Number.isInteger(minOrder) || !Number.isInteger(leadDays) || priceBreaks === null) redirect(`${back}?error=invalid`);
 
   const row = {
     category_id: categoryId,
     title_en: str(formData, "title_en"),
     title_ar: str(formData, "title_ar"),
     part_number: str(formData, "part_number"),
-    condition: str(formData, "condition"),
+    condition: str(formData, "condition") || "new",
     price_piastres: price,
+    unit_en: str(formData, "unit_en") || "piece",
+    unit_ar: str(formData, "unit_ar") || "قطعة",
+    min_order_qty: minOrder,
+    lead_days: leadDays,
+    price_breaks: priceBreaks,
     stock,
     status: str(formData, "status") === "paused" ? "paused" : "active",
     description_en: str(formData, "description_en"),
@@ -117,9 +155,9 @@ export async function saveProduct(formData: FormData) {
     specs: parseSpecs(String(formData.get("specs") ?? "")),
   };
 
-  // Seller-written text goes through the same contact filter as chat. A hit saves the listing as
+  // Supplier-written text goes through the same contact filter as chat. A hit saves the listing as
   // "under review": hidden from buyers until the admin approves it. (The database has its own check too.)
-  const listingCheck = checkListing([row.title_en, row.title_ar, row.part_number, row.description_en, row.description_ar, ...row.specs.map((x) => `${x.k_en} ${x.v}`)]);
+  const listingCheck = checkListing([row.title_en, row.title_ar, row.part_number, row.description_en, row.description_ar, row.unit_en, row.unit_ar, ...row.specs.map((x) => `${x.k_en} ${x.v}`)]);
   if (listingCheck.verdict !== "clean") row.status = "flagged";
 
   const supabase = await supabaseServer();

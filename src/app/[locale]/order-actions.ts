@@ -17,6 +17,7 @@ const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 function errorKey(message: string | undefined): string {
   const m = message ?? "";
   if (m.includes("invalid_transition")) return "invalidTransition";
+  if (m.includes("below_minimum")) return "belowMinimum";
   if (m.includes("insufficient_stock")) return "stock";
   if (m.includes("too_many_pending")) return "tooManyPending";
   if (m.includes("not_available")) return "notAvailable";

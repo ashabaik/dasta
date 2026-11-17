@@ -40,7 +40,7 @@ export default async function ThreadPage({ params, searchParams }: { params: Pro
   return (
     <div className="mx-auto max-w-3xl">
       <p className="mt-5 text-sm">
-        <Link href={`/${locale}/messages`} className="text-steel">
+        <Link href={`/${locale}/messages`} className="text-primary">
           <span className="arrow" aria-hidden="true">←</span> {c.title}
         </Link>
       </p>
@@ -48,7 +48,7 @@ export default async function ThreadPage({ params, searchParams }: { params: Pro
         <h1 className="text-xl font-semibold">
           {c.withParty} {otherLabel} <span className="code">{otherCode}</span>
         </h1>
-        <Link href={`/${locale}/p/${thread.product_ref}`} className="text-sm text-steel">
+        <Link href={`/${locale}/p/${thread.product_ref}`} className="text-sm text-primary">
           {c.about}: {pick(thread, "title", locale)}
         </Link>
       </div>
@@ -58,13 +58,13 @@ export default async function ThreadPage({ params, searchParams }: { params: Pro
       {errorKey ? <p className="error mt-3">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}
 
       <ol className="card mt-3 flex max-h-[60vh] flex-col gap-2.5 overflow-y-auto" data-testid="messages" aria-live="polite">
-        {list.length === 0 ? <li className="text-muted">{c.empty}</li> : null}
+        {list.length === 0 ? <li className="text-muted-foreground">{c.empty}</li> : null}
         {list.map((m) => {
           const own = m.sender === viewer.role;
           const stopped = m.status !== "delivered" && m.status !== "released";
           return (
             <li key={m.id} className={`flex flex-col ${own ? "items-end" : "items-start"}`} data-status={m.status}>
-              <span className="text-xs text-muted">
+              <span className="text-xs text-muted-foreground">
                 {own ? c.you : m.sender === "buyer" ? t.orders.buyer : t.seller.label} · {formatDateTime(m.created_at, locale)}
               </span>
               {stopped ? (
@@ -72,7 +72,7 @@ export default async function ThreadPage({ params, searchParams }: { params: Pro
                   {m.status === "held" ? c.heldOwn : c.blockedOwn}
                 </span>
               ) : (
-                <span dir="auto" className={`mt-0.5 max-w-[85%] whitespace-pre-line break-words rounded-md border px-3 py-1.5 text-sm ${own ? "border-steel bg-steel text-white" : "border-line bg-paper"}`}>
+                <span dir="auto" className={`mt-0.5 max-w-[85%] whitespace-pre-line break-words rounded-md border px-3 py-1.5 text-sm ${own ? "border-primary bg-primary text-white" : "border-border bg-background"}`}>
                   {m.body}
                 </span>
               )}
@@ -83,7 +83,7 @@ export default async function ThreadPage({ params, searchParams }: { params: Pro
       </ol>
 
       {viewer.role === "admin" ? (
-        <p className="mt-3 text-[13px] text-muted">{c.adminReadOnly}</p>
+        <p className="mt-3 text-[13px] text-muted-foreground">{c.adminReadOnly}</p>
       ) : suspended ? (
         <p className="error mt-3" data-testid="chat-suspended">
           {c.suspended}
@@ -102,7 +102,7 @@ export default async function ThreadPage({ params, searchParams }: { params: Pro
         </form>
       )}
       {viewer.role !== "admin" ? (
-        <p className={`mt-2 text-[13px] ${strikes > 0 ? "font-medium text-danger" : "text-muted"}`} data-testid="strikes">
+        <p className={`mt-2 text-[13px] ${strikes > 0 ? "font-medium text-danger" : "text-muted-foreground"}`} data-testid="strikes">
           {c.strikes(strikes)}
         </p>
       ) : null}

@@ -67,7 +67,7 @@ export default async function AdminPage({ params, searchParams }: { params: Prom
                 <td>
                   <span className={`pill ${s.status === "active" ? "pill-ok" : s.status === "pending" ? "pill-held" : "pill-danger"}`}>{t.sellerDash.status[s.status]}</span>
                 </td>
-                <td>{s.verified ? <span className="font-medium text-ok">✓ {a.yes}</span> : a.no}</td>
+                <td>{s.verified ? <span className="font-medium text-primary">✓ {a.yes}</span> : a.no}</td>
                 <td className="code">{s.products?.[0]?.count ?? 0}</td>
                 <td>
                   <div className="flex flex-wrap gap-1.5">
@@ -85,7 +85,7 @@ export default async function AdminPage({ params, searchParams }: { params: Prom
 
       <h2 className="h-section">{a.revealTitle}</h2>
       <div className="card space-y-3">
-        <p className="text-[13px] text-muted">{a.revealLead}</p>
+        <p className="text-[13px] text-muted-foreground">{a.revealLead}</p>
         <RevealForm
           locale={locale}
           sellers={list.map((s) => ({ id: s.id, code: s.code }))}
@@ -112,7 +112,7 @@ export default async function AdminPage({ params, searchParams }: { params: Prom
 
       <h2 className="h-section">{a.auditTitle}</h2>
       {!reveals || reveals.length === 0 ? (
-        <p className="card text-muted">{a.auditEmpty}</p>
+        <p className="card text-muted-foreground">{a.auditEmpty}</p>
       ) : (
         <div className="card overflow-x-auto p-0">
           <table className="table" data-testid="audit-log">

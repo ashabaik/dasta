@@ -1,40 +1,217 @@
+import Image from "next/image";
 import Link from "next/link";
-import { asLocale, getDict, pick } from "@/lib/i18n";
+import { ArrowRight, Briefcase, CookingPot, LayoutGrid, Package, Plug, Shirt, Sparkles, Wrench } from "lucide-react";
+import { asLocale, getDict, pick, type Dict, type Locale } from "@/lib/i18n";
+import { formatQty } from "@/lib/format";
 import { supabaseServer } from "@/lib/supabase/server";
-import { CARD_SELECT, CategoryIcon, IconCart, IconChat, IconCheck, IconLock, IconSearch, IconShield, IconTruck, ProductCard, imageUrl, type CardProduct } from "@/components/ui";
+import { CARD_SELECT, ProductCard, firstPhoto, type CardProduct } from "@/components/ui";
+import { Footer } from "@/components/chrome";
+import { HomeMotion } from "@/components/home-motion";
 
 const PAGE_SIZE = 12;
-const CONDITIONS = ["new", "used", "refurbished"];
+
+const CAT_ICON: Record<string, typeof Package> = {
+  "home-kitchen": CookingPot,
+  "office-supplies": Briefcase,
+  packaging: Package,
+  textiles: Shirt,
+  "personal-care": Sparkles,
+  "tools-hardware": Wrench,
+  "electronics-accessories": Plug,
+};
+/** A scene photograph stands for a category where one exists; otherwise its newest product does. */
+const CATEGORY_SCENE: Record<string, string> = { "home-kitchen": "/scenes/kitchen.jpg" };
+// Aligns a full-bleed block's text with the page column.
+const EDGE = "lg:ps-[max(2rem,calc((100vw-1240px)/2+2rem))]";
 
 type Search = Record<string, string | string[] | undefined>;
+type Category = { id: number; slug: string; name_en: string; name_ar: string };
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
 
-export default async function CataloguePage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<Search> }) {
+export default async function HomePage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<Search> }) {
   const locale = asLocale((await params).locale);
   const t = getDict(locale);
-  const h = t.home;
   const sp = await searchParams;
   const q = one(sp.q).trim().slice(0, 60);
   const cat = one(sp.cat);
-  const cond = CONDITIONS.includes(one(sp.cond)) ? one(sp.cond) : "";
   const region = one(sp.region);
   const sort = one(sp.sort);
   const page = Math.max(1, Number.parseInt(one(sp.page), 10) || 1);
-  const filtered = Boolean(q || cat || cond || region || sort || page > 1);
+  // Any question (a search, a category, a sort, "all products") gets the working catalogue; the bare
+  // address gets the front door.
+  const browsing = Boolean(q || cat || region || sort || one(sp.view) || page > 1);
 
   const supabase = await supabaseServer();
-  const [{ data: categories }, { data: regions }] = await Promise.all([
-    supabase.from("categories").select("id, slug, name_en, name_ar").order("sort"),
+  const { data: categories } = await supabase.from("categories").select("id, slug, name_en, name_ar").order("sort");
+
+  if (browsing) return <Catalogue locale={locale} t={t} categories={categories ?? []} q={q} cat={cat} region={region} sort={sort} page={page} />;
+
+  // Only public columns are selected, and row level security filters the rows for this visitor.
+  const { data } = await supabase.from("products").select(CARD_SELECT).eq("status", "active").eq("sellers.status", "active").order("listed_on", { ascending: false }).order("ref").limit(400);
+  const products = (data ?? []) as unknown as CardProduct[];
+  // Every number on this page is counted from the rows above.
+  const live = (categories ?? [])
+    .map((c) => {
+      const own = products.filter((p) => p.categories.slug === c.slug);
+      const cover = own.find((p) => p.product_images.length);
+      return { ...c, count: own.length, cover, image: CATEGORY_SCENE[c.slug] ?? (cover ? firstPhoto(cover) : null) };
+    })
+    .filter((c) => c.count > 0);
+  // A product whose photograph stands for its category stays out of the grid, so no photograph repeats.
+  const covers = new Set(live.filter((c) => !CATEGORY_SCENE[c.slug]).map((c) => c.cover?.ref));
+  const latest = products.filter((p) => !covers.has(p.ref)).slice(0, 8);
+  const ar = locale === "ar";
+
+  return (
+    <div data-home>
+      <div className="curtain">
+        {/* Opening shot: the photograph fills its half of the first screen and runs off the window edge. */}
+        <section data-hero className="flex flex-col lg:grid lg:min-h-[calc(100svh-72px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)]">
+          <div className={`flex flex-col justify-end px-4 pb-2 pt-6 sm:px-8 lg:pb-16 lg:pe-12 lg:pt-10 ${EDGE}`}>
+            <h1 data-hero-text className={`font-heading font-bold tracking-tight ${ar ? "text-[clamp(40px,5.7vw,90px)] leading-[1.24]" : "text-[clamp(44px,6.5vw,104px)] leading-[0.98]"}`}>
+              {t.home.title}
+            </h1>
+            <p data-hero-fade className="mt-5 max-w-[38ch] text-[18px] text-muted-foreground sm:text-[20px]">
+              {t.home.lead}
+            </p>
+            <div data-hero-fade className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <Link href={`/${locale}#products`} className="btn btn-lg">
+                {t.home.browse}
+              </Link>
+              <Link href={`/${locale}/signin#supplier`} className="inline-flex min-h-11 items-center text-[17px] font-medium text-primary underline underline-offset-4">
+                {t.nav.sell}
+              </Link>
+            </div>
+          </div>
+          {/* On a phone the photograph comes first and is cropped to the lamp; the headline follows it. */}
+          <div data-hero-media className="relative order-first mx-4 mt-1 aspect-[5/4] overflow-hidden rounded-[24px] bg-[#d3cfc5] sm:mx-8 sm:aspect-[16/9] lg:order-none lg:mx-0 lg:mt-0 lg:aspect-auto lg:rounded-none lg:rounded-es-[44px]">
+            <div data-hero-parallax className="absolute inset-x-0 -top-[5%] h-[110%]">
+              <Image data-hero-img src="/hero.jpg" alt="" fill preload sizes="(min-width: 1024px) 52vw, 100vw" className="object-cover object-[50%_66%] lg:object-[50%_58%]" />
+            </div>
+          </div>
+        </section>
+
+        <div className="wrap">
+          {/* Categories: one tap each, scrolls sideways on a phone. */}
+          <nav aria-label={t.nav.categories} className="-mx-4 mt-10 sm:mx-0 lg:mt-20">
+            <ul className="no-scrollbar flex gap-2.5 overflow-x-auto px-4 pb-1 sm:flex-wrap sm:px-0">
+              <li className="shrink-0">
+                <Link href={`/${locale}?view=all`} className="flex h-12 items-center gap-2 rounded-full bg-foreground px-4 text-[15px] font-medium text-background">
+                  <LayoutGrid className="size-[18px]" aria-hidden="true" />
+                  {t.catalogue.title}
+                  <span className="num text-[13px] text-background/75">{formatQty(products.length)}</span>
+                </Link>
+              </li>
+              {live.map((c) => {
+                const Icon = CAT_ICON[c.slug] ?? Package;
+                return (
+                  <li key={c.slug} className="shrink-0">
+                    <Link href={`/${locale}?cat=${c.slug}`} className="flex h-12 items-center gap-2 rounded-full bg-card px-4 text-[15px] font-medium text-foreground transition-colors duration-200 hover:bg-accent hover:text-accent-foreground">
+                      <Icon className="size-[18px]" aria-hidden="true" />
+                      {pick(c, "name", locale)}
+                      <span className="num text-[13px] text-muted-foreground">{formatQty(c.count)}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          <section id="products" className="scroll-mt-28 pt-10 sm:pt-14">
+            <div className="flex items-end justify-between gap-3">
+              <h2 className="font-heading text-[30px] font-bold tracking-tight sm:text-[44px] rtl:leading-[1.4]">{t.catalogue.latest}</h2>
+              <Link href={`/${locale}?view=all`} className="inline-flex min-h-11 items-center text-[15px] font-medium text-primary underline underline-offset-4">
+                {t.catalogue.title}
+              </Link>
+            </div>
+            <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:mt-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-14">
+              {latest.map((p, i) => (
+                <ProductCard key={p.ref} p={p} t={t} locale={locale} reveal={i % 4} />
+              ))}
+            </div>
+          </section>
+        </div>
+
+        {/* The signature scene. On a desktop it is held while the row of categories travels sideways
+            with the scroll; without motion, and on a phone, the same row is swiped or scrolled by hand. */}
+        <section id="categories" data-cat-scene className="mt-24 scroll-mt-24 lg:mt-36">
+          <div data-cat-track className={`no-scrollbar lg:flex lg:items-center lg:gap-12 lg:overflow-x-auto ${EDGE}`}>
+            <div className="px-4 sm:px-8 lg:w-[400px] lg:shrink-0 lg:px-0">
+              <h2 className={`font-heading font-bold tracking-tight ${ar ? "text-[32px] leading-[1.3] lg:text-[60px]" : "text-[34px] leading-[1.02] lg:text-[72px]"}`}>{t.catalogue.shopByCategory}</h2>
+              <p className="mt-3 max-w-[28ch] text-[17px] text-muted-foreground lg:mt-5 lg:text-[19px]">{t.catalogue.shopByCategoryText}</p>
+            </div>
+            <ul className="no-scrollbar mt-6 flex snap-x gap-4 overflow-x-auto px-4 pb-1 sm:px-8 lg:mt-0 lg:shrink-0 lg:gap-8 lg:overflow-visible lg:px-0 lg:pb-0">
+              {live.map((c) => (
+                <li key={c.slug} className="w-[66vw] max-w-[320px] shrink-0 snap-start lg:w-[calc(min(56vh,540px)*0.8)] lg:max-w-none">
+                  <Link href={`/${locale}?cat=${c.slug}`} className="group block">
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-[22px] bg-muted">{c.image ? <Image src={c.image} alt="" fill sizes="(min-width: 1024px) 432px, 66vw" className="object-cover" /> : null}</div>
+                    <p className="mt-4 font-heading text-[22px] font-bold tracking-tight underline-offset-4 group-hover:underline lg:text-[28px]">{pick(c, "name", locale)}</p>
+                    <p className="text-muted-foreground">{t.catalogue.results(c.count)}</p>
+                  </Link>
+                </li>
+              ))}
+              <li className="w-[66vw] max-w-[320px] shrink-0 snap-start lg:w-[calc(min(56vh,540px)*0.8)] lg:max-w-none">
+                <Link href={`/${locale}?view=all`} className="group block">
+                  <div className="flex aspect-[4/5] flex-col justify-between rounded-[22px] bg-card p-6 transition-colors duration-200 group-hover:bg-accent lg:p-8">
+                    <span className="num font-heading text-[64px] font-bold leading-none tracking-tight lg:text-[88px]">{formatQty(products.length)}</span>
+                    <span className="grid size-14 place-items-center self-end rounded-full bg-primary text-primary-foreground">
+                      <ArrowRight className="size-6 rtl:rotate-180" aria-hidden="true" />
+                    </span>
+                  </div>
+                  <p className="mt-4 font-heading text-[22px] font-bold tracking-tight underline-offset-4 group-hover:underline lg:text-[28px]">{t.catalogue.title}</p>
+                  <p className="text-muted-foreground">{t.catalogue.categoriesCount(live.length)}</p>
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        {/* A quiet scene after the strong one. The three steps really are a sequence, so they are numbered;
+            on a desktop they run across the full width. */}
+        <section id="how" className="wrap scroll-mt-24 pb-24 pt-24 lg:pb-40 lg:pt-36">
+          <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-2">
+            <h2 className="font-heading text-[30px] font-bold tracking-tight sm:text-[44px] rtl:leading-[1.4]">{t.home.howTitle}</h2>
+            <p className="max-w-[40ch] text-[17px] text-muted-foreground">{t.home.howText}</p>
+          </div>
+          <ol className="mt-8 grid gap-x-10 lg:mt-12 lg:grid-cols-3 lg:gap-x-14">
+            {t.home.steps.map(([title, text], i) => (
+              <li key={title} className="grid grid-cols-[3.25rem_1fr] gap-x-4 border-t border-border py-6 sm:grid-cols-[5rem_1fr] sm:py-8 lg:block lg:border-t-2 lg:border-foreground lg:py-7">
+                <span className="num font-heading text-[36px] font-bold leading-none text-primary sm:text-[48px] lg:text-[72px]" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <div className="lg:mt-5">
+                  <h3 className="font-heading text-[22px] font-bold tracking-tight sm:text-[26px] lg:text-[30px]">{title}</h3>
+                  <p className="mt-1.5 max-w-[40ch] text-muted-foreground lg:mt-2.5 lg:text-[17px]">{text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <div data-curtain-end />
+      </div>
+      <Footer locale={locale} t={t} closing />
+      <HomeMotion />
+    </div>
+  );
+}
+
+/** The working catalogue: search results, one category, sorting. A light screen: nothing is held, nothing scrubs. */
+async function Catalogue({ locale, t, categories, q, cat, region, sort, page }: { locale: Locale; t: Dict; categories: Category[]; q: string; cat: string; region: string; sort: string; page: number }) {
+  const supabase = await supabaseServer();
+  const [{ data: regions }, { data: stocked }] = await Promise.all([
     supabase.from("regions").select("key, name_en, name_ar").order("name_en"),
+    supabase.from("products").select("category_id, sellers!inner(status)").eq("status", "active").eq("sellers.status", "active").limit(1000),
   ]);
   const regionNames = Object.fromEntries((regions ?? []).map((r) => [r.key, pick(r, "name", locale)]));
-  const category = (categories ?? []).find((c) => c.slug === cat);
+  const category = categories.find((c) => c.slug === cat);
+  // Only categories that have something to show are offered as a filter.
+  const inUse = new Set((stocked ?? []).map((p) => p.category_id));
+  const offered = categories.filter((c) => inUse.has(c.id) || c.slug === cat);
 
   // Only public columns are selected, and row level security filters the rows for this visitor.
   let query = supabase.from("products").select(CARD_SELECT, { count: "exact" }).eq("status", "active").eq("sellers.status", "active");
   if (q) query = query.ilike("search_text", `%${q.toLowerCase().replace(/[%_\\]/g, " ")}%`);
   if (category) query = query.eq("category_id", category.id);
-  if (cond) query = query.eq("condition", cond);
   if (region && regionNames[region]) query = query.eq("sellers.region", region);
   if (sort === "price-asc") query = query.order("price_piastres", { ascending: true });
   else if (sort === "price-desc") query = query.order("price_piastres", { ascending: false });
@@ -43,254 +220,112 @@ export default async function CataloguePage({ params, searchParams }: { params: 
   const products = (data ?? []) as unknown as CardProduct[];
   const total = count ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const showcase = filtered ? [] : products.filter((p) => p.product_images.length).slice(0, 3);
 
-  const link = (p: number) => {
+  const href = (over: Record<string, string | number>) => {
     const u = new URLSearchParams();
-    if (q) u.set("q", q);
-    if (cat) u.set("cat", cat);
-    if (cond) u.set("cond", cond);
-    if (region) u.set("region", region);
-    if (sort) u.set("sort", sort);
-    if (p > 1) u.set("page", String(p));
-    const s = u.toString();
-    return `/${locale}${s ? `?${s}` : ""}#catalogue`;
+    const next = { q, cat, region, sort, page: 1, ...over };
+    if (next.q) u.set("q", String(next.q));
+    if (next.cat) u.set("cat", String(next.cat));
+    if (next.region) u.set("region", String(next.region));
+    if (next.sort) u.set("sort", String(next.sort));
+    if (Number(next.page) > 1) u.set("page", String(next.page));
+    if (![...u.keys()].length) u.set("view", "all");
+    return `/${locale}?${u.toString()}`;
   };
-  const trustIcons = [IconShield, IconLock, IconChat];
-  const stepIcons = [IconCart, IconTruck, IconCheck];
+  const chip = (active: boolean) => `flex h-11 items-center gap-2 rounded-full px-4 text-[15px] font-medium transition-colors duration-200 ${active ? "bg-foreground text-background" : "bg-card text-foreground hover:bg-accent hover:text-accent-foreground"}`;
 
   return (
     <>
-      {!filtered ? (
-        <section className="hero bleed">
-          <div className="wrap relative grid grid-cols-1 items-center gap-10 py-12 md:py-16 lg:grid-cols-[1.15fr_1fr]">
-            <div>
-              <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[13px] font-medium text-white/90">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                {h.kicker}
-              </p>
-              <h1 className="mt-4 text-4xl font-bold leading-[1.12] sm:text-5xl">{h.title}</h1>
-              <p className="mt-4 max-w-xl text-lg text-white/75">{h.lead}</p>
-              <form action={`/${locale}`} className="mt-7 flex max-w-xl overflow-hidden rounded-xl bg-white shadow-lift" role="search">
-                <input name="q" type="search" className="min-h-13 min-w-0 flex-1 border-0 bg-transparent px-4 text-base text-ink outline-none placeholder:text-muted" placeholder={t.search.placeholder} aria-label={t.search.placeholder} />
-                <button type="submit" className="flex shrink-0 items-center gap-2 bg-accent px-5 text-base font-semibold text-white hover:bg-accent-dark">
-                  <IconSearch size={19} />
-                  {t.search.submit}
-                </button>
-              </form>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <a href="#catalogue" className="btn btn-ondark btn-lg">
-                  {h.browse}
-                </a>
-                <Link href={`/${locale}/signin`} className="btn btn-lg">
-                  {h.demo}
-                </Link>
-              </div>
-            </div>
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
+        <h1 className="page-title">{category ? pick(category, "name", locale) : t.catalogue.title}</h1>
+        <p className="text-[15px] text-muted-foreground" data-testid="result-count">
+          {q ? <span className="font-medium text-foreground">&ldquo;{q}&rdquo; </span> : null}
+          {t.catalogue.results(total)}
+        </p>
+      </div>
 
-            {showcase.length === 3 ? (
-              <div className="relative mx-auto hidden h-[400px] w-full max-w-[460px] lg:block" aria-hidden="true">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageUrl(showcase[1].product_images[0].path)} alt="" className="absolute end-0 top-2 h-52 w-64 -rotate-3 rounded-2xl border-4 border-white/90 object-cover shadow-lift" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageUrl(showcase[2].product_images[0].path)} alt="" className="absolute bottom-0 end-10 h-44 w-56 rotate-2 rounded-2xl border-4 border-white/90 object-cover shadow-lift" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageUrl(showcase[0].product_images[0].path)} alt="" className="absolute start-0 top-24 h-56 w-72 rotate-1 rounded-2xl border-4 border-white object-cover shadow-lift" />
-                <span className="absolute start-3 top-12 inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-ink shadow-lift">
-                  <span className="grid h-6 w-6 place-items-center rounded-md bg-navy text-white">
-                    <IconShield size={14} />
-                  </span>
-                  <span>
-                    {t.seller.label} <span className="code">{showcase[0].sellers.code}</span>
-                  </span>
-                  <span className="text-ok">✓</span>
-                </span>
-                <span className="absolute bottom-6 start-6 inline-flex items-center gap-2 rounded-xl bg-held-bg px-3 py-2 text-sm font-semibold text-held shadow-lift">
-                  <IconLock size={16} />
-                  {h.held}
-                </span>
-              </div>
-            ) : null}
-          </div>
+      <nav aria-label={t.filters.category} className="-mx-4 mt-6 sm:mx-0">
+        <ul className="no-scrollbar flex gap-2 overflow-x-auto px-4 pb-1 sm:flex-wrap sm:px-0">
+          <li className="shrink-0">
+            <Link href={href({ cat: "" })} aria-current={category ? undefined : "true"} className={chip(!category)}>
+              {t.filters.allCategories}
+            </Link>
+          </li>
+          {offered.map((c) => (
+            <li key={c.slug} className="shrink-0">
+              <Link href={href({ cat: c.slug })} aria-current={c.slug === cat ? "true" : undefined} className={chip(c.slug === cat)}>
+                {pick(c, "name", locale)}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-          <div className="relative border-t border-white/10 bg-black/15">
-            <ul className="wrap grid grid-cols-1 gap-x-8 gap-y-4 py-5 sm:grid-cols-3">
-              {h.trust.map(([title, desc], i) => {
-                const Icon = trustIcons[i];
-                return (
-                  <li key={title} className="flex items-start gap-3">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-accent text-white">
-                      <Icon size={20} />
-                    </span>
-                    <span>
-                      <b className="block text-[15px] font-semibold text-white">{title}</b>
-                      <span className="text-[13px] text-white/65">{desc}</span>
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </section>
-      ) : null}
-
-      {!filtered ? (
-        <section>
-          <h2 className="h-section">{h.categories}</h2>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {(categories ?? []).map((c) => (
-              <li key={c.slug}>
-                <Link
-                  href={`/${locale}?cat=${c.slug}#catalogue`}
-                  className="group flex h-full items-center gap-3 rounded-xl border border-line bg-surface p-3.5 text-ink no-underline shadow-card transition hover:-translate-y-0.5 hover:border-accent hover:shadow-lift"
-                >
-                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-tile text-steel transition group-hover:bg-accent-soft group-hover:text-accent-dark">
-                    <CategoryIcon slug={c.slug} size={34} />
-                  </span>
-                  <span className="text-sm font-semibold leading-snug">{pick(c, "name", locale)}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <section id="catalogue" className="scroll-mt-28">
-        <div className={`flex flex-wrap items-baseline justify-between gap-2 ${filtered ? "mt-7" : ""}`}>
-          {filtered ? <h1 className="text-3xl font-bold">{t.catalogue.title}</h1> : <h2 className="h-section">{t.catalogue.title}</h2>}
-          <p className="text-sm text-muted" data-testid="result-count">
-            {q ? (
-              <>
-                <span className="font-semibold text-ink">&ldquo;{q}&rdquo;</span> ·{" "}
-              </>
-            ) : null}
-            {t.catalogue.results(total)}
-          </p>
+      <form action={`/${locale}`} className="mt-4 flex flex-wrap items-end gap-3">
+        {q ? <input type="hidden" name="q" value={q} /> : null}
+        {cat ? <input type="hidden" name="cat" value={cat} /> : null}
+        {!q && !cat ? <input type="hidden" name="view" value="all" /> : null}
+        <div className="min-w-[160px] flex-1 sm:max-w-[240px]">
+          <label className="label" htmlFor="f-sort">
+            {t.filters.sort}
+          </label>
+          <select id="f-sort" name="sort" defaultValue={sort} className="input">
+            <option value="">{t.filters.sortNewest}</option>
+            <option value="price-asc">{t.filters.sortPriceAsc}</option>
+            <option value="price-desc">{t.filters.sortPriceDesc}</option>
+          </select>
         </div>
-
-        <form action={`/${locale}`} className="card mt-3 grid grid-cols-2 gap-3 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] lg:items-end">
-          {q ? <input type="hidden" name="q" value={q} /> : null}
-          <div>
-            <label className="label" htmlFor="f-cat">
-              {t.filters.category}
-            </label>
-            <select id="f-cat" name="cat" defaultValue={cat} className="input">
-              <option value="">{t.filters.allCategories}</option>
-              {(categories ?? []).map((c) => (
-                <option key={c.slug} value={c.slug}>
-                  {pick(c, "name", locale)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="label" htmlFor="f-cond">
-              {t.filters.condition}
-            </label>
-            <select id="f-cond" name="cond" defaultValue={cond} className="input">
-              <option value="">{t.filters.anyCondition}</option>
-              {CONDITIONS.map((c) => (
-                <option key={c} value={c}>
-                  {t.condition[c]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="label" htmlFor="f-region">
-              {t.filters.region}
-            </label>
-            <select id="f-region" name="region" defaultValue={region} className="input">
-              <option value="">{t.filters.allRegions}</option>
-              {(regions ?? []).map((r) => (
-                <option key={r.key} value={r.key}>
-                  {pick(r, "name", locale)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="label" htmlFor="f-sort">
-              {t.filters.sort}
-            </label>
-            <select id="f-sort" name="sort" defaultValue={sort} className="input">
-              <option value="">{t.filters.sortNewest}</option>
-              <option value="price-asc">{t.filters.sortPriceAsc}</option>
-              <option value="price-desc">{t.filters.sortPriceDesc}</option>
-            </select>
-          </div>
-          <div className="col-span-2 flex gap-2 lg:col-span-1">
-            <button type="submit" className="btn btn-dark">
-              {t.filters.apply}
-            </button>
-            <Link href={`/${locale}`} className="btn btn-ghost">
-              {t.filters.clear}
-            </Link>
-          </div>
-        </form>
-
-        {products.length === 0 ? (
-          <p className="card mt-4 text-muted">{t.catalogue.empty}</p>
-        ) : (
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((p) => (
-              <ProductCard key={p.ref} p={p} t={t} locale={locale} regions={regionNames} />
+        <div className="min-w-[160px] flex-1 sm:max-w-[240px]">
+          <label className="label" htmlFor="f-region">
+            {t.filters.region}
+          </label>
+          <select id="f-region" name="region" defaultValue={region} className="input">
+            <option value="">{t.filters.allRegions}</option>
+            {(regions ?? []).map((r) => (
+              <option key={r.key} value={r.key}>
+                {pick(r, "name", locale)}
+              </option>
             ))}
-          </div>
-        )}
-
-        {pages > 1 ? (
-          <nav className="mt-6 flex flex-wrap items-center justify-between gap-3" aria-label="Pagination">
-            {page > 1 ? (
-              <Link href={link(page - 1)} className="btn btn-ghost">
-                {t.catalogue.prev}
-              </Link>
-            ) : (
-              <span />
-            )}
-            <span className="text-sm text-muted">{t.catalogue.page(Math.min(page, pages), pages)}</span>
-            {page < pages ? (
-              <Link href={link(page + 1)} className="btn btn-dark">
-                {t.catalogue.next}
-              </Link>
-            ) : (
-              <span />
-            )}
-          </nav>
+          </select>
+        </div>
+        <button type="submit" className="btn btn-dark min-h-12">
+          {t.filters.apply}
+        </button>
+        {q || cat || region || sort ? (
+          <Link href={`/${locale}?view=all`} className="btn btn-ghost min-h-12">
+            {t.filters.clear}
+          </Link>
         ) : null}
-      </section>
+      </form>
 
-      {!filtered ? (
-        <>
-          <section>
-            <h2 className="h-section">{h.howTitle}</h2>
-            <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {h.steps.map(([title, desc], i) => {
-                const Icon = stepIcons[i];
-                return (
-                  <li key={title} className="card relative overflow-hidden p-5">
-                    <span className="code absolute end-4 top-2 text-6xl font-bold text-tile">{i + 1}</span>
-                    <span className="relative grid h-11 w-11 place-items-center rounded-lg bg-navy text-white">
-                      <Icon size={22} />
-                    </span>
-                    <h3 className="relative mt-3 text-lg font-semibold">{title}</h3>
-                    <p className="relative mt-1 text-sm text-muted">{desc}</p>
-                  </li>
-                );
-              })}
-            </ol>
-          </section>
+      {products.length === 0 ? (
+        <p className="card mt-8 text-muted-foreground">{t.catalogue.empty}</p>
+      ) : (
+        <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-14">
+          {products.map((p) => (
+            <ProductCard key={p.ref} p={p} t={t} locale={locale} />
+          ))}
+        </div>
+      )}
 
-          <section className="mt-8 flex flex-wrap items-center justify-between gap-5 rounded-2xl bg-navy p-7 text-white shadow-lift">
-            <div>
-              <h2 className="text-2xl font-bold">{h.ctaTitle}</h2>
-              <p className="mt-1 text-white/70">{h.ctaLead}</p>
-            </div>
-            <Link href={`/${locale}/signin`} className="btn btn-lg">
-              {h.demo}
+      {pages > 1 ? (
+        <nav className="mt-12 flex flex-wrap items-center justify-between gap-3" aria-label="Pagination">
+          {page > 1 ? (
+            <Link href={href({ page: page - 1 })} className="btn btn-ghost">
+              {t.catalogue.prev}
             </Link>
-          </section>
-        </>
+          ) : (
+            <span />
+          )}
+          <span className="text-[15px] text-muted-foreground">{t.catalogue.page(Math.min(page, pages), pages)}</span>
+          {page < pages ? (
+            <Link href={href({ page: page + 1 })} className="btn btn-dark">
+              {t.catalogue.next}
+            </Link>
+          ) : (
+            <span />
+          )}
+        </nav>
       ) : null}
     </>
   );
@@ -299,5 +334,5 @@ export default async function CataloguePage({ params, searchParams }: { params: 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const p = await params;
   const t = getDict(asLocale(p.locale));
-  return { title: { absolute: `${t.catalogue.title} · ${t.brand}` } };
+  return { title: { absolute: `${t.brand} · ${t.tagline}` } };
 }

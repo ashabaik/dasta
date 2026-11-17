@@ -6,7 +6,8 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { Money } from "@/components/ui";
 import { mockPay } from "../../order-actions";
 
-// Stands in for the payment provider's hosted checkout. Clearly labelled: no card, no real money.
+// Stands in for the payment provider's hosted checkout. The first thing on it says so: test mode,
+// no card is charged, no real money moves.
 export default async function MockPayPage({ params }: { params: Promise<{ locale: string; no: string }> }) {
   const p0 = await params;
   const locale = asLocale(p0.locale);
@@ -19,37 +20,41 @@ export default async function MockPayPage({ params }: { params: Promise<{ locale
   if (order.status !== "pending_payment") redirect(`/${locale}/orders/${order.no}`);
 
   return (
-    <div className="mx-auto mt-8 max-w-lg">
-      <div className="rounded-md border-2 border-dashed border-held-line bg-surface p-5">
-        <p className="pill pill-held">{t.demoNotice}</p>
-        <h1 className="mt-3 text-xl font-semibold">{t.pay.title}</h1>
-        <p className="mt-1 text-sm text-muted">{t.pay.lead}</p>
-        <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-          <dt className="text-muted">{t.orders.order}</dt>
+    <div className="mx-auto mt-8 max-w-xl">
+      <div className="card">
+        <h1 className="flex flex-wrap items-center gap-3 font-heading text-[28px] font-bold tracking-tight">
+          {t.pay.title}
+          <span className="pill pill-held" data-testid="test-mode">
+            {t.pay.testMode}
+          </span>
+        </h1>
+        <p className="notice mt-4">{t.pay.lead}</p>
+        <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[15px]">
+          <dt className="text-muted-foreground">{t.orders.order}</dt>
           <dd className="code text-start">{order.no}</dd>
-          <dt className="text-muted">{t.orders.part}</dt>
+          <dt className="text-muted-foreground">{t.orders.part}</dt>
           <dd>
-            {pick(order, "title", locale)} <span className="code text-muted">× {order.quantity}</span>
+            {pick(order, "title", locale)} <span className="code text-muted-foreground">× {order.quantity}</span>
           </dd>
-          <dt className="text-muted">{t.pay.amount}</dt>
-          <dd className="text-lg font-semibold">
+          <dt className="text-muted-foreground">{t.pay.amount}</dt>
+          <dd className="text-[22px] font-semibold">
             <Money piastres={order.total_piastres} locale={locale} />
           </dd>
         </dl>
-        <form action={mockPay} className="mt-5 flex flex-wrap gap-2">
+        <form action={mockPay} className="mt-6 flex flex-wrap gap-2.5">
           <input type="hidden" name="locale" value={locale} />
           <input type="hidden" name="no" value={order.no} />
-          <button type="submit" name="outcome" value="success" className="btn" data-testid="pay-success">
+          <button type="submit" name="outcome" value="success" className="btn min-h-12" data-testid="pay-success">
             {t.pay.succeed}
           </button>
-          <button type="submit" name="outcome" value="fail" className="btn btn-ghost" data-testid="pay-fail">
+          <button type="submit" name="outcome" value="fail" className="btn btn-ghost min-h-12" data-testid="pay-fail">
             {t.pay.fail}
           </button>
         </form>
-        <p className="mt-4 text-[13px] text-muted">{t.pay.how}</p>
+        <p className="mt-5 text-sm text-muted-foreground">{t.pay.how}</p>
       </div>
-      <p className="mt-3 text-sm">
-        <Link href={`/${locale}/orders/${order.no}`} className="text-steel">
+      <p className="mt-4 text-[15px]">
+        <Link href={`/${locale}/orders/${order.no}`} className="inline-flex min-h-11 items-center gap-1.5 font-medium text-primary underline underline-offset-4">
           <span className="arrow" aria-hidden="true">←</span> {t.pay.back}
         </Link>
       </p>

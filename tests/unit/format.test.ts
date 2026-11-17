@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { formatMoney, formatMonth, parseEgpToPiastres } from "@/lib/format";
 
 describe("money", () => {
-  it("parses what a seller types into piastres", () => {
+  it("parses what a supplier types into piastres", () => {
     expect(parseEgpToPiastres("8,400")).toBe(840000);
     expect(parseEgpToPiastres("8400.5")).toBe(840050);
     expect(parseEgpToPiastres(" 12 750 ")).toBe(1275000);
@@ -12,9 +12,10 @@ describe("money", () => {
   });
   it("formats piastres with Latin digits", () => {
     expect(formatMoney(840000)).toBe("8,400");
-    expect(formatMoney(840050)).toBe("8,400.5");
+    expect(formatMoney(840050)).toBe("8,400.50"); // amounts that are not whole always show both decimals
+    expect(formatMoney(5780)).toBe("57.80");
   });
-  it("shows the month a seller joined, never the day", () => {
+  it("shows the month a supplier joined, never the day", () => {
     expect(formatMonth("2026-11-01", "en")).toBe("Nov 2026");
     expect(formatMonth("2026-11-01", "ar")).not.toMatch(/[٠-٩]/);
   });

@@ -47,14 +47,14 @@ export function RevealForm({ locale, sellers, labels }: { locale: string; seller
       </form>
       {state.error ? <p className="error">{labels.errors[state.error] ?? labels.errors.generic}</p> : null}
       {state.identity ? (
-        <div className="rounded-md border border-held-line bg-held-bg p-3" data-testid="revealed-identity">
+        <div className="rounded-md border border-held-bg bg-held-bg p-3" data-testid="revealed-identity">
           <h3 className="text-sm font-semibold text-held">
             {labels.revealed} <span className="code">{state.identity.seller_code}</span>
           </h3>
           <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
             {Object.entries(labels.fields).map(([key, label]) => (
               <div key={key} className="contents">
-                <dt className="text-muted">{label}</dt>
+                <dt className="text-muted-foreground">{label}</dt>
                 <dd dir="ltr" className="text-start">
                   {(state.identity as Record<string, string>)[key]}
                 </dd>

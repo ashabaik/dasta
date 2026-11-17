@@ -3,7 +3,7 @@
 // Deletes ALL marketplace rows and ALL auth users of that project, then recreates the sample set.
 // Two datasets: the showcase catalogue the live site shows (default), or the neutral fixtures the
 // database tests run against (tests/fixtures.mjs).
-import { randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import pg from "pg";
@@ -130,8 +130,11 @@ export async function seedWithEnv(env, { quiet = false, images = true, dataset =
         const c = credits[p.img];
         if (!c) throw new Error(`no credits entry for ${p.img}`);
         const product = (await db.query("select id from public.products where part_number = $1", [p.code])).rows[0];
-        const clean = await reencodePhoto(readFileSync(join(dir, `${p.img}.jpg`)));
-        const path = `${randomUUID()}.webp`;
+        const source = readFileSync(join(dir, `${p.img}.jpg`));
+        const clean = await reencodePhoto(source);
+        // Sample photographs keep the same storage name from one nightly reset to the next (a hash of
+        // the file), so image caches stay valid. A supplier's own upload always gets a random name.
+        const path = `sample-${createHash("sha1").update(source).digest("hex").slice(0, 20)}.webp`;
         const up = await admin.storage.from("product-images").upload(path, clean.data, { contentType: "image/webp", cacheControl: "31536000" });
         if (up.error) throw new Error(`image upload ${p.img}: ${up.error.message}`);
         await db.query(

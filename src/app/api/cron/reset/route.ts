@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { seedWithEnv } from "../../../../../scripts/seed.mjs";
 
-// Nightly reset of the demo data (see vercel.json). Vercel calls this with the CRON_SECRET; anyone else
-// gets 401. It wipes the marketplace tables and all demo accounts and seeds the sample data again, so
+// Nightly reset of the sample data (see vercel.json). Vercel calls this with the CRON_SECRET; anyone else
+// gets 401. It wipes the marketplace tables and all sample accounts and seeds the sample data again, so
 // whatever visitors did during the day is gone the next morning.
 export const maxDuration = 300;
 

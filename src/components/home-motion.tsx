@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import "lenis/dist/lenis.css";
 
 declare global {
@@ -20,17 +20,23 @@ const DESKTOP = "(min-width: 1024px) and (pointer: fine)";
  *                     the closing line rises once
  *
  * Two choreographies, not one made smaller:
- *   - Phones and touch screens: the opening and the one-time reveals are plain CSS (see mockups.css);
+ *   - Phones and touch screens: the opening and the one-time reveals are plain CSS (see globals.css);
  *     this component only tells the stylesheet when something has scrolled into view. No animation
  *     library is downloaded, no smooth-scroll layer, nothing held.
  *   - Desktop: GSAP (ScrollTrigger, SplitText) and Lenis are loaded after the first paint for the
  *     line-by-line headline, the parallax and the held scene.
  *
- * Nothing runs for visitors who prefer reduced motion: the inline gate in the layout never adds
- * `has-motion` for them. Text is split by lines, never by letters, so Arabic stays joined, and sideways
+ * Nothing runs for visitors who prefer reduced motion: neither the inline gate in the layout nor this
+ * component adds `has-motion` for them. Text is split by lines, never by letters, so Arabic stays joined, and sideways
  * travel is mirrored in right-to-left.
  */
 export function HomeMotion() {
+  // Arriving from another page (no fresh document, so the inline gate did not run for this page):
+  // put the opening states in place before the first paint of the home page.
+  useLayoutEffect(() => {
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("has-motion");
+  }, []);
+
   useEffect(() => {
     const root = document.documentElement;
     if (!root.classList.contains("has-motion")) return;

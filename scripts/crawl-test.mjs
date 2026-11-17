@@ -17,6 +17,7 @@ const argBase = process.argv.indexOf("--base");
 let base = argBase > 0 ? process.argv[argBase + 1].replace(/\/$/, "") : null;
 const PORT = 3112;
 const MAX_PAGES = 400;
+const CONCURRENCY = 4;
 const BUYER_CANARIES = ["DSPRIVB", "000 000 02", `buyer1@${EMAIL_DOMAIN}`, `buyer2@${EMAIL_DOMAIN}`, `admin@${EMAIL_DOMAIN}`];
 
 const failures = [];
@@ -72,10 +73,8 @@ async function crawl(label, key, own, seeds, opts = {}) {
   const seen = new Set();
   let pages = 0;
   let redirects = 0;
-  while (queue.length && pages < MAX_PAGES) {
-    const path = queue.shift();
-    if (seen.has(path)) continue;
-    seen.add(path);
+  // The checks for one address: both forms of the page (HTML and the React data payload).
+  const visit = async (path) => {
     for (const variant of [{}, { RSC: "1" }]) {
       const r = await get(path, cookie, variant);
       const kind = variant.RSC ? "data" : "html";
@@ -95,6 +94,17 @@ async function crawl(label, key, own, seeds, opts = {}) {
         }
       }
     }
+  };
+  // A few addresses at a time, so the whole run stays inside the 10-minute limit of a heavy run.
+  while (queue.length && pages < MAX_PAGES) {
+    const batch = [];
+    while (queue.length && batch.length < CONCURRENCY) {
+      const path = queue.shift();
+      if (seen.has(path)) continue;
+      seen.add(path);
+      batch.push(path);
+    }
+    await Promise.all(batch.map(visit));
   }
   console.log(`  ${label}: ${pages} pages, ${redirects} redirects, ${seen.size} addresses tried`);
   return { cookie, seen };

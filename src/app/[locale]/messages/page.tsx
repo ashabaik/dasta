@@ -28,7 +28,7 @@ export default async function ThreadsPage({ params, searchParams }: { params: Pr
       <p className="notice mt-4">{c.rules}</p>
       {errorKey ? <p className="error mt-4">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}
       {!threads || threads.length === 0 ? (
-        <p className="card mt-4 text-muted">{c.none}</p>
+        <p className="card mt-4 text-muted-foreground">{c.none}</p>
       ) : (
         <div className="card mt-4 overflow-x-auto p-0">
           <table className="table" data-testid="threads">
@@ -47,7 +47,7 @@ export default async function ThreadsPage({ params, searchParams }: { params: Pr
                   <td className="min-w-48">{pick(th, "title", locale)}</td>
                   {viewer.role !== "seller" ? <td className="code whitespace-nowrap">{th.seller_code}</td> : null}
                   {viewer.role !== "buyer" ? <td className="code whitespace-nowrap">{th.buyer_code}</td> : null}
-                  <td className="whitespace-nowrap text-[13px] text-muted">{formatDateTime(th.last_message_at, locale)}</td>
+                  <td className="whitespace-nowrap text-[13px] text-muted-foreground">{formatDateTime(th.last_message_at, locale)}</td>
                   <td className="text-end">
                     <Link href={`/${locale}/messages/${th.id}`} className="btn btn-ghost btn-sm">
                       {c.open}

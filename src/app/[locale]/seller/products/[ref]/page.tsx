@@ -23,7 +23,7 @@ export default async function EditProductPage({ params, searchParams }: { params
   const [{ data: product }, { data: categories }] = await Promise.all([
     supabase
       .from("products")
-      .select("ref, category_id, title_en, title_ar, part_number, condition, specs, description_en, description_ar, price_piastres, stock, status, product_images(id, path, sort)")
+      .select("ref, category_id, title_en, title_ar, part_number, condition, specs, description_en, description_ar, price_piastres, stock, status, unit_en, unit_ar, min_order_qty, lead_days, price_breaks, product_images(id, path, sort)")
       .eq("ref", p0.ref)
       .eq("seller_id", viewer.sellerId)
       .maybeSingle(),
@@ -35,7 +35,7 @@ export default async function EditProductPage({ params, searchParams }: { params
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="page-title">{f.editTitle}</h1>
-      <p className="code mt-1 text-sm text-muted">{product.part_number}</p>
+      <p className="code mt-1 text-sm text-muted-foreground">{product.part_number}</p>
       {sp.saved ? <p className="pill pill-ok mt-4">{f.saved}</p> : null}
       {errorKey ? <p className="error mt-4">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}
 
@@ -45,13 +45,13 @@ export default async function EditProductPage({ params, searchParams }: { params
 
       <section className="card mt-4 space-y-3">
         <h2 className="text-sm font-semibold">{f.photos}</h2>
-        <p className="text-[13px] text-muted">{f.photosLead}</p>
+        <p className="text-[13px] text-muted-foreground">{f.photosLead}</p>
         {photos.length ? (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {photos.map((ph) => (
               <li key={ph.id} className="space-y-1.5">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageUrl(ph.path)} alt="" className="aspect-square w-full rounded border border-line object-cover" />
+                <img src={imageUrl(ph.path)} alt="" className="aspect-square w-full rounded border border-border object-cover" />
                 <form action={removePhoto}>
                   <input type="hidden" name="locale" value={locale} />
                   <input type="hidden" name="ref" value={product.ref} />
@@ -74,7 +74,7 @@ export default async function EditProductPage({ params, searchParams }: { params
             </button>
           </form>
         ) : null}
-        <p className="text-[13px] text-muted">{f.photoLimit}</p>
+        <p className="text-[13px] text-muted-foreground">{f.photoLimit}</p>
       </section>
 
       <form action={deleteProduct} className="mt-4">

@@ -28,7 +28,7 @@ export async function supabaseServer() {
 
 /**
  * Privileged client (secret key, bypasses row level security). Used in exactly three places:
- * creating throwaway demo accounts, storing a re-encoded product photo, and payment webhooks.
+ * creating throwaway sample accounts, storing a re-encoded product photo, and payment webhooks.
  * Never import this into a page that renders data.
  */
 export function supabaseAdmin() {

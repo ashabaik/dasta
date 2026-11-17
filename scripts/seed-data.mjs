@@ -57,10 +57,30 @@ export const sellers = [
 
 const spec = (k_en, k_ar, v) => ({ k_en, k_ar, v });
 const S = {
-  mat: (en, ar) => ({ k_en: "Material", k_ar: "الخامة", v: en, v_ar: ar }),
+  mat: (v) => spec("Material", "الخامة", v),
   pack: (v) => spec("Carton", "الكرتونة", v),
   size: (v) => spec("Size", "المقاس", v),
 };
+// Arabic for the detail values, so an Arabic page never shows a line in English.
+const MAT_AR = {
+  Stoneware: "خزف حجري", Glass: "زجاج", "Acacia wood": "خشب الأكاسيا", "Stainless steel": "ستانلس ستيل",
+  "Aluminium, non-stick coating": "ألومنيوم بطلاء غير لاصق", Ceramic: "خزف", Porcelain: "بورسلين", Rattan: "خوص",
+  "Cotton canvas": "قماش قطني سميك", Cotton: "قطن", "Cotton blend": "قطن مخلوط", Linen: "كتان", "Kraft board": "كرتون كرافت",
+  "Kraft paper": "ورق كرافت", Tinplate: "صفيح", "Glass, cork": "زجاج وفلين", Wood: "خشب", Plastic: "بلاستيك", Steel: "صلب",
+  "Steel head, rubber grip": "رأس صلب ومقبض مطاطي",
+};
+const PACK_AR = { pieces: "قطعة", sets: "طقم", boxes: "علبة", jars: "برطمان", packs: "عبوة", rolls: "رول" };
+const SIZE_AR = {
+  "150 cm wide": "عرض 150 سم", "50 m roll": "رول 50 مترًا", "100 clips per box": "100 مشبك في العلبة", "50 envelopes per pack": "50 ظرفًا في العبوة",
+  "12 clips per box": "12 مشبكًا في العلبة", "50 cards per pack": "50 كارتًا في العبوة", "100 screws per box": "100 مسمار في العلبة",
+};
+const arValue = (s) => {
+  if (s.k_en === "Material") return MAT_AR[s.v];
+  if (s.k_en === "Size") return SIZE_AR[s.v];
+  const m = /^([\d,]+) (\w+)$/.exec(s.v);
+  return m && PACK_AR[m[2]] ? `${m[1]} ${PACK_AR[m[2]]}` : undefined;
+};
+
 const UNIT = {
   piece: ["piece", "قطعة"], set: ["set", "طقم"], box: ["box", "علبة"], pack: ["pack", "عبوة"], roll: ["roll", "رول"], metre: ["metre", "متر"], jar: ["jar", "برطمان"],
 };
@@ -79,7 +99,7 @@ const breaks = (egp, moq) => [
 // no photograph is used for two listings. Names describe what the photograph shows.
 const row = (seller, cat, code, img, egp, unit, moq, lead, stock, en, ar, specs) => ({
   seller, cat, code, img, egp, stock, en, ar,
-  specs: specs.map(({ v_ar, ...x }) => x),
+  specs: specs.map((x) => (arValue(x) ? { ...x, v_ar: arValue(x) } : x)),
   condition: "new",
   unit_en: UNIT[unit][0], unit_ar: UNIT[unit][1],
   moq, lead, breaks: breaks(egp, moq),

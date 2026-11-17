@@ -5,7 +5,7 @@ import { getViewer } from "@/lib/session";
 import { supabaseServer } from "@/lib/supabase/server";
 import { formatDateTime } from "@/lib/format";
 import { Money } from "@/components/ui";
-import { EscrowTimeline, ORDER_SELECT, OrderHistory, StatusPill, type OrderRow } from "@/components/orders";
+import { ProtectionTimeline, ORDER_SELECT, OrderHistory, StatusPill, type OrderRow } from "@/components/orders";
 import { orderStep, rateOrder } from "../../order-actions";
 import { openThread } from "../../chat-actions";
 
@@ -57,26 +57,26 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
         </h1>
         <StatusPill status={order.status} t={t} />
       </div>
-      <p className="mt-1 text-[13px] text-muted">{formatDateTime(order.created_at, locale)}</p>
+      <p className="mt-1 text-[13px] text-muted-foreground">{formatDateTime(order.created_at, locale)}</p>
       {errorKey ? <p className="error mt-4">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}
 
       <div className="mt-4 grid grid-cols-1 gap-3.5 md:grid-cols-2">
         <div className="space-y-3.5">
           <div className="card space-y-3">
             <div>
-              <span className="code text-[12.5px] text-muted">{order.part_number}</span>
+              <span className="code text-[12.5px] text-muted-foreground">{order.part_number}</span>
               <h2 className="text-base font-semibold">
-                <Link href={`/${locale}/p/${order.product_ref}`} className="text-ink no-underline hover:underline">
+                <Link href={`/${locale}/p/${order.product_ref}`} className="text-foreground no-underline hover:underline">
                   {pick(order, "title", locale)}
                 </Link>
               </h2>
             </div>
             <dl className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
-              <dt className="text-muted">{o.unitPrice}</dt>
+              <dt className="text-muted-foreground">{o.unitPrice}</dt>
               <dd className="text-end">
                 <Money piastres={order.unit_price_piastres} locale={locale} />
               </dd>
-              <dt className="text-muted">{o.qty}</dt>
+              <dt className="text-muted-foreground">{o.qty}</dt>
               <dd className="code text-end">{order.quantity}</dd>
               <dt className="font-semibold">{o.total}</dt>
               <dd className="text-end font-semibold">
@@ -84,29 +84,29 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
               </dd>
               {viewer.role !== "buyer" ? (
                 <>
-                  <dt className="text-muted">
+                  <dt className="text-muted-foreground">
                     {o.commission} (<span className="code">{order.commission_bps / 100}%</span>)
                   </dt>
                   <dd className="text-end">
                     <Money piastres={order.commission_piastres} locale={locale} />
                   </dd>
-                  <dt className="text-muted">{o.sellerNet}</dt>
+                  <dt className="text-muted-foreground">{o.sellerNet}</dt>
                   <dd className="text-end">
                     <Money piastres={order.seller_net_piastres} locale={locale} />
                   </dd>
                 </>
               ) : null}
             </dl>
-            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 border-t border-dashed border-line pt-3 text-sm">
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 border-t border-dashed border-border pt-3 text-sm">
               {viewer.role !== "seller" ? (
                 <>
-                  <dt className="text-muted">{t.seller.label}</dt>
+                  <dt className="text-muted-foreground">{t.seller.label}</dt>
                   <dd className="code text-start">{order.seller_code}</dd>
                 </>
               ) : null}
               {viewer.role !== "buyer" ? (
                 <>
-                  <dt className="text-muted">{o.buyer}</dt>
+                  <dt className="text-muted-foreground">{o.buyer}</dt>
                   <dd className="code text-start">{order.buyer_code}</dd>
                 </>
               ) : null}
@@ -117,11 +117,11 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
             <div className="card space-y-2" data-testid="waybill">
               <h2 className="text-sm font-semibold">{o.waybill.title}</h2>
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-                <dt className="text-muted">{o.waybill.number}</dt>
+                <dt className="text-muted-foreground">{o.waybill.number}</dt>
                 <dd className="code text-start">{order.waybill_no}</dd>
-                <dt className="text-muted">{o.waybill.shipper}</dt>
+                <dt className="text-muted-foreground">{o.waybill.shipper}</dt>
                 <dd>{o.waybill.shipperValue}</dd>
-                <dt className="text-muted">{o.waybill.consignee}</dt>
+                <dt className="text-muted-foreground">{o.waybill.consignee}</dt>
                 <dd>
                   {o.buyer} <span className="code">{order.buyer_code}</span>. {o.waybill.consigneeNote}
                 </dd>
@@ -136,15 +136,15 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
                 <span className={`pill ${dispute.status === "open" ? "pill-danger" : "pill-muted"}`}>{o.dispute.status[dispute.status]}</span>
               </div>
               <p className="text-sm">
-                <span className="text-muted">{o.dispute.reason}:</span> {o.dispute.reasons[dispute.reason_code]}
+                <span className="text-muted-foreground">{o.dispute.reason}:</span> {o.dispute.reasons[dispute.reason_code]}
               </p>
               {notes.length ? (
-                <div className="rounded border border-held-line bg-held-bg p-2.5 text-sm">
+                <div className="rounded border border-held-bg bg-held-bg p-2.5 text-sm">
                   <h3 className="text-[13px] font-semibold text-held">{o.dispute.adminNotes}</h3>
                   <ul className="mt-1 space-y-1">
                     {notes.map((n: { author: string; note: string }, i: number) => (
                       <li key={i}>
-                        <span className="text-muted">{o.actors[n.author]}:</span> {n.note}
+                        <span className="text-muted-foreground">{o.actors[n.author]}:</span> {n.note}
                       </li>
                     ))}
                   </ul>
@@ -155,7 +155,7 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
         </div>
 
         <div className="space-y-3.5">
-          <EscrowTimeline order={order} t={t} />
+          <ProtectionTimeline order={order} t={t} />
 
           <div className="card space-y-3" data-testid="order-actions">
             {viewer.role === "buyer" && order.status === "pending_payment" ? (
@@ -171,7 +171,7 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
               <>
                 <Step locale={locale} no={order.no} step="confirm" label={o.actions.confirm} />
                 <details>
-                  <summary className="cursor-pointer text-sm text-steel">{o.actions.dispute}</summary>
+                  <summary className="cursor-pointer text-sm text-primary">{o.actions.dispute}</summary>
                   <div className="mt-2">
                     <Step locale={locale} no={order.no} step="dispute" label={o.actions.dispute} kind="btn-danger">
                       <div className="w-full">
@@ -230,7 +230,7 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
                 {t.chat.title}
               </Link>
             ) : null}
-            <p className="text-[13px] text-muted">{t.product.privacyNote}</p>
+            <p className="text-[13px] text-muted-foreground">{t.product.privacyNote}</p>
           </div>
 
           {order.status === "completed" && (rating || viewer.role === "buyer") ? (
@@ -239,11 +239,11 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
               {rated ? <p className="pill pill-ok">{t.rating.rated}</p> : null}
               {rating ? (
                 <p>
-                  <span className="code text-lg text-accent" aria-hidden="true">
+                  <span className="code text-lg text-primary" aria-hidden="true">
                     {"★".repeat(rating.stars)}
                     <span className="text-line">{"★".repeat(5 - rating.stars)}</span>
                   </span>{" "}
-                  <span className="text-sm text-muted">{t.rating.of5(rating.stars)}</span>
+                  <span className="text-sm text-muted-foreground">{t.rating.of5(rating.stars)}</span>
                 </p>
               ) : (
                 <form action={rateOrder} className="flex flex-wrap gap-1.5">
@@ -256,7 +256,7 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
                   ))}
                 </form>
               )}
-              <p className="text-[13px] text-muted">{t.rating.hint}</p>
+              <p className="text-[13px] text-muted-foreground">{t.rating.hint}</p>
             </div>
           ) : null}
 

@@ -17,6 +17,11 @@ export type EditableProduct = {
   price_piastres: number;
   stock: number;
   status: string;
+  unit_en: string;
+  unit_ar: string;
+  min_order_qty: number;
+  lead_days: number;
+  price_breaks: { qty: number; price_piastres: number }[];
 };
 
 type Category = { id: number; name_en: string; name_ar: string };
@@ -24,11 +29,13 @@ type Category = { id: number; name_en: string; name_ar: string };
 export function ProductForm({ t, locale, categories, product }: { t: Dict; locale: Locale; categories: Category[]; product?: EditableProduct }) {
   const f = t.productForm;
   const specsText = (product?.specs ?? []).map((s) => `${s.k_en} = ${s.v}`).join("\n");
+  const breaksText = (product?.price_breaks ?? []).map((b) => `${b.qty} = ${b.price_piastres / 100}`).join("\n");
   return (
-    <form action={saveProduct} className="card space-y-3">
+    <form action={saveProduct} className="card space-y-4">
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="ref" value={product?.ref ?? ""} />
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <input type="hidden" name="condition" value={product?.condition ?? "new"} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="label" htmlFor="p-title-en">
             {f.titleEn}
@@ -60,18 +67,6 @@ export function ProductForm({ t, locale, categories, product }: { t: Dict; local
           </select>
         </div>
         <div>
-          <label className="label" htmlFor="p-cond">
-            {f.condition}
-          </label>
-          <select id="p-cond" name="condition" className="input" defaultValue={product?.condition ?? "new"} required>
-            {["new", "used", "refurbished"].map((c) => (
-              <option key={c} value={c}>
-                {t.condition[c]}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
           <label className="label" htmlFor="p-status">
             {f.status}
           </label>
@@ -96,15 +91,47 @@ export function ProductForm({ t, locale, categories, product }: { t: Dict; local
           </label>
           <input id="p-stock" name="stock" type="number" min={0} max={100000} className="input code" defaultValue={product?.stock ?? 1} required />
         </div>
+        <div>
+          <label className="label" htmlFor="p-unit-en">
+            {f.unitEn}
+          </label>
+          <input id="p-unit-en" name="unit_en" className="input" dir="ltr" defaultValue={product?.unit_en ?? "piece"} required maxLength={20} />
+          <p className="mt-1 text-sm text-muted-foreground">{f.unitHint}</p>
+        </div>
+        <div>
+          <label className="label" htmlFor="p-unit-ar">
+            {f.unitAr}
+          </label>
+          <input id="p-unit-ar" name="unit_ar" className="input" dir="rtl" defaultValue={product?.unit_ar ?? "قطعة"} required maxLength={20} />
+        </div>
+        <div>
+          <label className="label" htmlFor="p-moq">
+            {f.moq}
+          </label>
+          <input id="p-moq" name="min_order_qty" type="number" min={1} max={100000} className="input code" defaultValue={product?.min_order_qty ?? 1} required />
+        </div>
+        <div>
+          <label className="label" htmlFor="p-lead">
+            {f.leadDays}
+          </label>
+          <input id="p-lead" name="lead_days" type="number" min={1} max={90} className="input code" defaultValue={product?.lead_days ?? 3} required />
+        </div>
+      </div>
+      <div>
+        <label className="label" htmlFor="p-breaks">
+          {f.breaks}
+        </label>
+        <textarea id="p-breaks" name="price_breaks" rows={3} className="input code" dir="ltr" defaultValue={breaksText} />
+        <p className="mt-1 text-sm text-muted-foreground">{f.breaksHint}</p>
       </div>
       <div>
         <label className="label" htmlFor="p-specs">
           {f.specs}
         </label>
         <textarea id="p-specs" name="specs" rows={4} className="input code" defaultValue={specsText} />
-        <p className="mt-1 text-[13px] text-muted">{f.specsHint}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{f.specsHint}</p>
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="label" htmlFor="p-desc-en">
             {f.descriptionEn}
