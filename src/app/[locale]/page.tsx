@@ -243,10 +243,11 @@ async function Catalogue({ locale, t, categories, q, cat, region, sort, page }: 
     <>
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
         <h1 className="page-title">{category ? pick(category, "name", locale) : t.catalogue.title}</h1>
-        <p className="text-[15px] text-muted-foreground" data-testid="result-count">
+        {/* A heading, so the product names below it (h3) do not skip a level. */}
+        <h2 className="text-[15px] font-normal text-muted-foreground" data-testid="result-count">
           {q ? <span className="font-medium text-foreground">&ldquo;{q}&rdquo; </span> : null}
           {t.catalogue.results(total)}
-        </p>
+        </h2>
       </div>
 
       <nav aria-label={t.filters.category} className="-mx-4 mt-6 sm:mx-0">

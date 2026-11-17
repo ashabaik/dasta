@@ -56,7 +56,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       </div>
 
       <p className="mt-8 text-[15px] text-muted-foreground">
-        <a href="https://ashabaik.github.io" className="underline underline-offset-4">
+        <a href="https://ashabaik.github.io" className="inline-flex min-h-11 items-center underline underline-offset-4">
           {a.builtBy}
         </a>
       </p>
