@@ -220,8 +220,34 @@ html {
   background: linear-gradient(transparent 58%, var(--accent) 58%, var(--accent) 92%, transparent 92%);
 }
 
+/* AB. Dasta, the chosen merge: B's structure and typefaces on A's white page, with A's deep green. */
+.mk-ab {
+  --background: #ffffff;
+  --foreground: #121512;
+  --card: #f5f4f1;
+  --card-foreground: #121512;
+  --muted: #eceae4;
+  --muted-foreground: #5d5c56;
+  --border: #e7e5df;
+  --input: #8f8b80; /* field edges: 3:1 against the page */
+  --primary: #1d5a45;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f4f1;
+  --secondary-foreground: #121512;
+  --accent: #e2efe9;
+  --accent-foreground: #1d5a45;
+  --ring: #1d5a45;
+  --radius: 1rem;
+  --mk-sans: var(--f-body), system-ui, sans-serif;
+  --mk-heading: var(--f-display), var(--f-body), system-ui, sans-serif;
+}
+.mk-ab[lang="ar"] {
+  --mk-sans: var(--f-body), system-ui, sans-serif;
+  --mk-heading: var(--f-body), system-ui, sans-serif;
+}
+
 /* One solid focus outline everywhere, in the direction's own colour. */
-.mk-a :focus-visible, .mk-b :focus-visible, .mk-c :focus-visible, .mk-index :focus-visible {
+.mk-ab :focus-visible, .mk-a :focus-visible, .mk-b :focus-visible, .mk-c :focus-visible, .mk-index :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
