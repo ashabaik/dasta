@@ -33,6 +33,7 @@ export function targetEnv(target) {
     publishableKey: need("SUPABASE_PUBLISHABLE_KEY"),
     secretKey: need("SUPABASE_SECRET_KEY"),
     demoPassword: need("DEMO_USER_PASSWORD"),
+    paymentHmacSecret: need("PAYMENT_HMAC_SECRET"),
     demoSupabaseUrl: v.SUPABASE_URL,
   };
 }

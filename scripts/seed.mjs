@@ -4,7 +4,7 @@
 import pg from "pg";
 import { createClient } from "@supabase/supabase-js";
 import { targetEnv, targetFromArgs } from "./env.mjs";
-import { users, sellers, products, sellerIdentity, buyerIdentity } from "./seed-data.mjs";
+import { users, sellers, products, sampleOrders, sellerIdentity, buyerIdentity } from "./seed-data.mjs";
 
 export async function seed(target, { quiet = false } = {}) {
   const env = targetEnv(target);
@@ -14,6 +14,9 @@ export async function seed(target, { quiet = false } = {}) {
   await db.connect();
   try {
     // 1. wipe
+    await db.query(`truncate private.ledger_entries, private.ledger_txns, private.payouts, private.webhook_events,
+      private.payment_intents, private.dispute_notes, public.disputes, public.order_events, public.orders`);
+    await db.query("update private.settings set value = '800'::jsonb where key = 'commission_bps'");
     await db.query("delete from public.sellers");   // cascades to products, images, private rows
     await db.query("delete from public.buyers");
     await db.query("delete from private.identity_reveals");
@@ -96,8 +99,49 @@ export async function seed(target, { quiet = false } = {}) {
       );
     }
 
+    // 6. sample orders, driven through the real functions so the ledger is consistent
+    const asUser = async (key, text, params = []) => {
+      await db.query("begin");
+      try {
+        await db.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: ids[key], role: "authenticated" })]);
+        const r = await db.query(text, params);
+        await db.query("commit");
+        return r.rows[0];
+      } catch (e) {
+        await db.query("rollback");
+        throw e;
+      }
+    };
+    const refOf = async (pn) => (await db.query("select ref from public.products where part_number = $1", [pn])).rows[0].ref;
+    let eventNo = 1000;
+    const pay = async (no) => {
+      const { rows } = await db.query("select total_piastres from public.orders where no = $1", [no]);
+      await db.query("select public.payment_apply_event('mock', $1, $2, true, $3, $4::jsonb)", [
+        `seed-${++eventNo}`, no, rows[0].total_piastres, JSON.stringify({ type: "TRANSACTION", obj: { id: eventNo, order: { merchant_order_id: no } } }),
+      ]);
+    };
+    for (const o of sampleOrders) {
+      const no = (await asUser(o.buyer, "select public.buyer_create_order($1, $2) as no", [await refOf(o.part), o.qty])).no;
+      if (o.to === "pending_payment") continue;
+      await pay(no);
+      if (o.to === "paid_held") continue;
+      if (o.to === "refunded") {
+        await asUser(o.buyer, "select public.buyer_cancel_order($1)", [no]);
+        continue;
+      }
+      const seller = (await db.query("select s.code from public.orders o join public.sellers s on s.id = o.seller_id where o.no = $1", [no])).rows[0].code;
+      await asUser(`seller${sellers.find((x) => x.code === seller).n}`, "select public.seller_mark_shipped($1)", [no]);
+      if (o.to === "shipped") continue;
+      if (o.to === "disputed") {
+        await asUser(o.buyer, "select public.buyer_open_dispute($1, $2, $3)", [no, "not_as_described", "Sample note: the thread size differs from the listing."]);
+        continue;
+      }
+      await asUser(o.buyer, "select public.buyer_confirm_delivery($1)", [no]);
+      if (o.to === "paid_out") await asUser("admin", "select public.admin_payout_seller($1)", [sellerIds[sellers.find((x) => x.code === seller).n]]);
+    }
+
     const c = await db.query(
-      "select (select count(*) from public.sellers) sellers, (select count(*) from public.products) products, (select count(*) from public.buyers) buyers",
+      "select (select count(*) from public.sellers) sellers, (select count(*) from public.products) products, (select count(*) from public.buyers) buyers, (select count(*) from public.orders) orders",
     );
     log(`seeded ${target}:`, c.rows[0], `users: ${users.length}`);
     return { ids, sellerIds };

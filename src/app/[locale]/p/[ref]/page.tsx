@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { asLocale, getDict, pick } from "@/lib/i18n";
 import { supabaseServer } from "@/lib/supabase/server";
 import { formatMonth } from "@/lib/format";
+import { getViewer } from "@/lib/session";
+import { createOrder } from "../../order-actions";
 import { CARD_SELECT, CategoryArt, Money, ProductCard, SellerChip, SpecList, imageUrl, type CardProduct, type Spec } from "@/components/ui";
 
 type Detail = CardProduct & {
@@ -13,8 +15,12 @@ type Detail = CardProduct & {
   sellers: { code: string; region: string; verified: boolean; joined_month: string };
 };
 
-export default async function ProductPage({ params }: { params: Promise<{ locale: string; ref: string }> }) {
+type Search = Record<string, string | string[] | undefined>;
+
+export default async function ProductPage({ params, searchParams }: { params: Promise<{ locale: string; ref: string }>; searchParams: Promise<Search> }) {
   const p0 = await params;
+  const errorKey = String((await searchParams).error ?? "");
+  const viewer = await getViewer();
   const locale = asLocale(p0.locale);
   const t = getDict(locale);
   const supabase = await supabaseServer();
@@ -74,9 +80,32 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
             <h1 className="mt-2 text-2xl font-semibold leading-tight">{pick(p, "title", locale)}</h1>
           </div>
 
-          <div className="card flex flex-wrap items-center justify-between gap-3">
-            <Money piastres={p.price_piastres} locale={locale} className="text-2xl font-semibold" />
-            <span className="tag">{p.stock > 0 ? t.catalogue.inStock(p.stock) : t.catalogue.outOfStock}</span>
+          <div className="card space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Money piastres={p.price_piastres} locale={locale} className="text-2xl font-semibold" />
+              <span className="tag">{p.stock > 0 ? t.catalogue.inStock(p.stock) : t.catalogue.outOfStock}</span>
+            </div>
+            {errorKey ? <p className="error">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}
+            {viewer?.role === "buyer" && p.stock > 0 ? (
+              <form action={createOrder} className="flex flex-wrap items-end gap-2">
+                <input type="hidden" name="locale" value={locale} />
+                <input type="hidden" name="ref" value={p.ref} />
+                <div>
+                  <label className="label" htmlFor="o-qty">
+                    {t.orders.qty}
+                  </label>
+                  <input id="o-qty" name="quantity" type="number" min={1} max={Math.min(p.stock, 1000)} defaultValue={1} className="input code w-24" required />
+                </div>
+                <button type="submit" className="btn" data-testid="order-now">
+                  {t.orders.orderNow}
+                </button>
+              </form>
+            ) : null}
+            {!viewer && p.stock > 0 ? (
+              <Link href={`/${locale}/signin`} className="btn btn-ghost">
+                {t.orders.signInToOrder}
+              </Link>
+            ) : null}
           </div>
 
           <div className="card space-y-2">

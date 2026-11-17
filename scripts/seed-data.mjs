@@ -112,3 +112,15 @@ export const products = [
   [6, "hydraulic-cylinders", "HC-TC-3120", "used", 18900, 1, "Telescopic cylinder, 3 stages, 1200 mm stroke", "أسطوانة تلسكوبية 3 مراحل بشوط 1200 مم", [S.stroke("1200 mm")]],
   [6, "hydraulic-pumps", "HP-GP-0080", "new", 5200, 3, "Hydraulic gear pump, 8 cc/rev", "مضخة ترسية هيدروليكية 8 سم³/لفة", [S.disp("8 cc/rev"), S.pmax("250 bar")]],
 ];
+
+// Sample orders, each taken through the real order functions up to the state named in `to`.
+// paid_out = completed and already paid to the seller.
+export const sampleOrders = [
+  { buyer: "buyer1", part: "HV-DC-4306", qty: 2, to: "paid_out" },
+  { buyer: "buyer1", part: "HC-DA-1056", qty: 1, to: "shipped" },
+  { buyer: "buyer1", part: "HF-RL-0010", qty: 10, to: "paid_held" },
+  { buyer: "buyer1", part: "MB-DG-6205", qty: 20, to: "pending_payment" },
+  { buyer: "buyer2", part: "HS-CK-6336", qty: 4, to: "disputed" },
+  { buyer: "buyer2", part: "HV-BV-0034", qty: 5, to: "completed" },
+  { buyer: "buyer1", part: "HH-QC-0012", qty: 6, to: "refunded" },
+];

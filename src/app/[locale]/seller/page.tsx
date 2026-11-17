@@ -3,6 +3,7 @@ import { asLocale, getDict, pick } from "@/lib/i18n";
 import { requireRole } from "@/lib/session";
 import { supabaseServer } from "@/lib/supabase/server";
 import { Money } from "@/components/ui";
+import { ORDER_SELECT, OrdersTable, type OrderRow } from "@/components/orders";
 import { sellerOnboard } from "../actions";
 
 type Search = Record<string, string | string[] | undefined>;
@@ -78,10 +79,15 @@ export default async function SellerDashboard({ params, searchParams }: { params
 
   // ---- Onboarded: dashboard ----
   const d = t.sellerDash;
-  const [{ data: products }, { data: identity }] = await Promise.all([
+  const [{ data: products }, { data: identity }, { data: finance }, { data: orderRows }] = await Promise.all([
     supabase.from("products").select("ref, title_en, title_ar, part_number, price_piastres, stock, status").eq("seller_id", viewer.sellerId).order("part_number"),
     supabase.rpc("seller_my_identity"),
+    supabase.rpc("seller_finance"),
+    // Row level security returns only this seller's paid orders.
+    supabase.from("orders").select(ORDER_SELECT).eq("seller_id", viewer.sellerId).order("created_at", { ascending: false }).limit(50),
   ]);
+  const money = finance?.[0] ?? { held_piastres: 0, payable_piastres: 0, paid_out_piastres: 0, commission_bps: 0 };
+  const orders = (orderRows ?? []) as unknown as OrderRow[];
   const list = products ?? [];
   const full = list.length >= 10;
   const status = viewer.sellerStatus ?? "pending";
@@ -132,6 +138,32 @@ export default async function SellerDashboard({ params, searchParams }: { params
             </dl>
           ) : null}
         </details>
+      </div>
+
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold">{t.money.balance}</h2>
+        <span className="pill pill-muted">{t.money.commissionRate(String(money.commission_bps / 100))}</span>
+      </div>
+      <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3" data-testid="seller-balance">
+        {(
+          [
+            [t.money.held, money.held_piastres],
+            [t.money.payable, money.payable_piastres],
+            [t.money.paidOut, money.paid_out_piastres],
+          ] as const
+        ).map(([label, value]) => (
+          <div key={label} className="card">
+            <dt className="text-[13px] text-muted">{label}</dt>
+            <dd className="mt-0.5 text-lg font-semibold">
+              <Money piastres={value} locale={locale} />
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <h2 className="mt-6 text-lg font-semibold">{t.orders.title}</h2>
+      <div className="mt-3">
+        <OrdersTable orders={orders} t={t} locale={locale} party="buyer" />
       </div>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">

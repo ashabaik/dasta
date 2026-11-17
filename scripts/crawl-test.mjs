@@ -10,6 +10,7 @@ import { createServerClient } from "@supabase/ssr";
 import { targetEnv } from "./env.mjs";
 import { EMAIL_DOMAIN, sellers, sellerCanaries } from "./seed-data.mjs";
 import { setup, teardown } from "../tests/db/global-setup.mjs";
+import { buildMockTransaction, signTransaction } from "../src/lib/payments.ts";
 
 const env = targetEnv("test");
 const argBase = process.argv.indexOf("--base");
@@ -125,6 +126,7 @@ async function main() {
     const db = new pg.Client({ connectionString: env.databaseUrl.replace(/[?&]sslmode=[^&]*/, ""), ssl: { rejectUnauthorized: false } });
     await db.connect();
     const refs = (await db.query("select p.ref, s.code from public.products p join public.sellers s on s.id = p.seller_id")).rows;
+    const orders = (await db.query("select no, status, buyer_code, seller_code, total_piastres from public.orders order by created_at")).rows;
     await db.end();
     const pendingRef = refs.find((r) => r.code === "S-W6PA").ref;
     const seller1Ref = refs.find((r) => r.code === "S-7Q4X").ref;
@@ -134,6 +136,8 @@ async function main() {
       "/en/admin", "/en/seller", "/en/buyer", "/en/seller/products/new", `/en/seller/products/${seller1Ref}`,
       `/en/p/${pendingRef}`, "/en/s/S-W6PA", ...sellers.map((s) => `/en/s/${s.code}`), ...refs.map((r) => `/en/p/${r.ref}`),
       "/en?q=MKPRIV", "/en?q=sample", "/en?q=000", "/en/p/P-NOPE00", "/en/s/S-NOPE",
+      "/en/admin/orders", "/en/admin/money", "/ar/admin/money",
+      ...orders.flatMap((o) => [`/en/orders/${o.no}`, `/ar/orders/${o.no}`, `/en/orders/${o.no}/invoice`, `/en/pay/${o.no}`]),
     ];
 
     console.log("Crawling as each visitor:");
@@ -168,7 +172,59 @@ async function main() {
       if (!own.body.includes("MKPRIV01NAME")) fail("control: seller 1 should see their own identity on their dashboard");
       if (findCanaries(own.body, canariesFor([1])).length) fail("seller 1's dashboard shows someone else's private data");
     }
-    console.log("  access rules and control: done");
+    // Orders: only the two parties and the admin can open an order; a seller cannot open an unpaid one.
+    {
+      const b1 = orders.find((o) => o.buyer_code === "B-4K7PD" && o.status !== "pending_payment");
+      const b2 = orders.find((o) => o.buyer_code === "B-9WX2M");
+      const unpaid = orders.find((o) => o.status === "pending_payment");
+      const seller3 = await cookieFor("seller3");
+      const checks = [
+        ["buyer opening another buyer's order", buyer.cookie, `/en/orders/${b2.no}`, 404],
+        ["buyer opening another buyer's invoice", buyer.cookie, `/en/orders/${b2.no}/invoice`, 404],
+        ["seller opening an order of another seller", other.cookie, `/en/orders/${orders.find((o) => o.seller_code !== "S-M2KD" && o.status !== "pending_payment").no}`, 404],
+        ["seller opening an unpaid order placed with them", seller3, `/en/orders/${unpaid.no}`, 404],
+        ["seller opening an invoice", other.cookie, `/en/orders/${orders.find((o) => o.seller_code === "S-M2KD").no}/invoice`, 404],
+        ["buyer opening their own order", buyer.cookie, `/en/orders/${b1.no}`, 200],
+      ];
+      for (const [label, cookie, path, want] of checks) {
+        const r = await get(path, cookie);
+        if (r.status !== want) fail(`${label}: ${path} should be ${want}, got ${r.status}`);
+      }
+      const v = await get(`/en/orders/${b1.no}`, anon.cookie);
+      if (!(v.status >= 300 && v.status < 400)) fail(`visitor opening an order should be sent to sign-in, got ${v.status}`);
+      for (const path of ["/en/admin/orders", "/en/admin/money"]) await expectRedirect("buyer", buyer.cookie, path);
+    }
+
+    // Webhook: the signature is checked before anything else, and a replay changes nothing.
+    {
+      const hook = (body, hmac, method = "POST") =>
+        fetch(`${base}/api/webhooks/payments${hmac === null ? "" : `?hmac=${hmac}`}`, {
+          method,
+          headers: { "content-type": "application/json" },
+          body: method === "POST" ? (typeof body === "string" ? body : JSON.stringify(body)) : undefined,
+        });
+      const unpaid = orders.find((o) => o.status === "pending_payment");
+      const cb = buildMockTransaction(unpaid.no, Number(unpaid.total_piastres), true, 700000001);
+      const good = signTransaction(cb.obj, env.paymentHmacSecret);
+      const expectStatus = async (label, res, want) => {
+        if (res.status !== want) fail(`webhook ${label}: expected ${want}, got ${res.status}`);
+      };
+      await expectStatus("without a signature", await hook(cb, null), 401);
+      await expectStatus("with a wrong signature", await hook(cb, signTransaction(cb.obj, "wrong-secret")), 401);
+      await expectStatus("with a body changed after signing", await hook({ ...cb, obj: { ...cb.obj, amount_cents: 1 } }, good), 401);
+      await expectStatus("with a body that is not JSON", await hook("not json", good), 400);
+      await expectStatus("with GET", await hook(null, good, "GET"), 405);
+      const stillPending = await get(`/en/orders/${unpaid.no}`, buyer.cookie);
+      if (!stillPending.body.includes("Waiting for payment")) fail("webhook: a rejected callback changed the order");
+      const first = await hook(cb, good);
+      const firstBody = await first.json();
+      if (first.status !== 200 || firstBody.result !== "captured") fail(`webhook: a valid callback should capture, got ${first.status} ${JSON.stringify(firstBody)}`);
+      const replay = await (await hook(cb, good)).json();
+      if (replay.result !== "duplicate") fail(`webhook: a replay should be a duplicate, got ${JSON.stringify(replay)}`);
+      const paid = await get(`/en/orders/${unpaid.no}`, buyer.cookie);
+      if (!paid.body.includes("Paid, held by Makbas")) fail("webhook: the order page does not show the captured payment");
+    }
+    console.log("  access rules, order pages, webhook and control: done");
   } finally {
     if (server) spawn("taskkill", ["/pid", String(server.pid), "/T", "/F"], { stdio: "ignore" });
     await teardown();

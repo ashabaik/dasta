@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/session";
 import { supabaseServer } from "@/lib/supabase/server";
 import { formatDateTime } from "@/lib/format";
 import { RevealForm } from "@/components/reveal-form";
+import { AdminNav } from "@/components/orders";
 import { adminSetSellerStatus } from "../actions";
 
 type Search = Record<string, string | string[] | undefined>;
@@ -42,6 +43,7 @@ export default async function AdminPage({ params, searchParams }: { params: Prom
   return (
     <>
       <h1 className="mt-6 text-2xl font-semibold">{a.title}</h1>
+      <AdminNav locale={locale} t={t} current="sellers" />
       {errorKey ? <p className="error mt-4">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}
 
       <h2 className="h-section">{a.sellers}</h2>
