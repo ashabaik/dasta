@@ -1,15 +1,36 @@
 {
- "mugs": {
-  "title": "white ceramic mug on white table",
-  "source_url": "https://unsplash.com/photos/white-ceramic-mug-on-white-table-u_jt9A7FADk",
-  "image_url": "https://images.unsplash.com/photo-1590422749897-47036da0b0ff",
+ "balm-tin": {
+  "title": "two small white bowls sitting next to each other",
+  "source_url": "https://unsplash.com/photos/two-small-white-bowls-sitting-next-to-each-other-zDBGwtbtLOA",
+  "image_url": "https://images.unsplash.com/photo-1646110929780-b97f94dd7ccf",
   "licence": "Unsplash Licence",
   "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
  },
- "jars": {
-  "title": "six assorted spice containers",
-  "source_url": "https://unsplash.com/photos/six-assorted-spice-containers-L8ClxPGHdJE",
-  "image_url": "https://images.unsplash.com/photo-1559837957-bab8edc53c85",
+ "baskets": {
+  "title": "brown wicker basket lot",
+  "source_url": "https://unsplash.com/photos/brown-wicker-basket-lot-0kvS01RVKQI",
+  "image_url": "https://images.unsplash.com/photo-1455669175216-9017c9b02fc6",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "binder-clips": {
+  "title": "Yellow and purple notebooks with gold clips and a pencil",
+  "source_url": "https://unsplash.com/photos/yellow-and-purple-notebooks-with-gold-clips-and-a-pencil-3Sd_ip0OkC0",
+  "image_url": "https://images.unsplash.com/photo-1780664555037-9f44a8142c61",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "blank-cards": {
+  "title": "Scattered sheets of white paper covering the entire frame",
+  "source_url": "https://unsplash.com/photos/scattered-sheets-of-white-paper-covering-the-entire-frame-aJTiW00qqtI",
+  "image_url": "https://images.unsplash.com/photo-1470790376778-a9fbc86d70e2",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "blankets-folded": {
+  "title": "stack of textiles",
+  "source_url": "https://unsplash.com/photos/stack-of-textiles-DFt3T5r_4FE",
+  "image_url": "https://images.unsplash.com/photo-1572206443494-b07cc12d6921",
   "licence": "Unsplash Licence",
   "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
  },
@@ -20,6 +41,78 @@
   "licence": "Unsplash Licence",
   "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
  },
+ "bottles": {
+  "title": "green bottle on white table",
+  "source_url": "https://unsplash.com/photos/green-bottle-on-white-table-reEySFadyJQ",
+  "image_url": "https://images.unsplash.com/photo-1602143407151-7111542de6e8",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "boxes": {
+  "title": "brown cardboard box on white table",
+  "source_url": "https://unsplash.com/photos/brown-cardboard-box-on-white-table-jpQs15STZZ4",
+  "image_url": "https://images.unsplash.com/photo-1631010231931-d2c396b444ec",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "carafe-glass": {
+  "title": "clear glass bottle with water",
+  "source_url": "https://unsplash.com/photos/clear-glass-bottle-with-water-Iss-GUXx2qQ",
+  "image_url": "https://images.unsplash.com/photo-1589807502991-d64e6459096c",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "casserole": {
+  "title": "white ceramic cooking pot with lid",
+  "source_url": "https://unsplash.com/photos/white-ceramic-cooking-pot-with-lid-sZGBifFHgdk",
+  "image_url": "https://images.unsplash.com/photo-1548690592-1fc9e7f78087",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17",
+  "edit": "The plain studio background is continued above and below the original frame."
+ },
+ "colour-pencils": {
+  "title": "a row of colored pencils lined up against a white background",
+  "source_url": "https://unsplash.com/photos/a-row-of-colored-pencils-lined-up-against-a-white-background-YUkydE7hUxM",
+  "image_url": "https://images.unsplash.com/photo-1714403316652-ce5fe69fd5da",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "cookware-light": {
+  "title": "3 stainless steel cooking pots on white ceramic tiles",
+  "source_url": "https://unsplash.com/photos/3-stainless-steel-cooking-pots-on-white-ceramic-tiles-AOVtEuU9UGc",
+  "image_url": "https://images.unsplash.com/photo-1584990347193-6bebebfeaeee",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17",
+  "edit": "Cropped to the three stacked pots."
+ },
+ "cork-jars": {
+  "title": "clear glass jar with white liquid inside",
+  "source_url": "https://unsplash.com/photos/clear-glass-jar-with-white-liquid-inside-vn8j-xKwjpw",
+  "image_url": "https://images.unsplash.com/photo-1624536616180-845c60114450",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "cream-jars": {
+  "title": "a stack of white pills sitting on top of a bed",
+  "source_url": "https://unsplash.com/photos/a-stack-of-white-pills-sitting-on-top-of-a-bed-Qt09qEf2GfE",
+  "image_url": "https://images.unsplash.com/photo-1699885725100-18bfef4955d6",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "cups": {
+  "title": "a white coffee cup with a black lid",
+  "source_url": "https://unsplash.com/photos/a-white-coffee-cup-with-a-black-lid-c1jSLqPWjQ8",
+  "image_url": "https://images.unsplash.com/photo-1647972488473-ca3796499272",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "cushions": {
+  "title": "a pair of colorful pillows sitting next to a white wall",
+  "source_url": "https://unsplash.com/photos/a-pair-of-colorful-pillows-sitting-next-to-a-white-wall-R_yKUHWjsX4",
+  "image_url": "https://images.unsplash.com/photo-1682616394422-726a0d8901a9",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
  "cutlery": {
   "title": "spoon and fork",
   "source_url": "https://unsplash.com/photos/spoon-and-fork-rVqxZ9zrTQ0",
@@ -27,10 +120,143 @@
   "licence": "Unsplash Licence",
   "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
  },
- "baskets": {
-  "title": "brown wicker basket lot",
-  "source_url": "https://unsplash.com/photos/brown-wicker-basket-lot-0kvS01RVKQI",
-  "image_url": "https://images.unsplash.com/photo-1455669175216-9017c9b02fc6",
+ "envelopes": {
+  "title": "three white mail envelops",
+  "source_url": "https://unsplash.com/photos/three-white-mail-envelops-iZCHv8ViRdw",
+  "image_url": "https://images.unsplash.com/photo-1567794636765-5e4869f627e1",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "fabric-roll": {
+  "title": "A roll of white paper sitting on top of a machine",
+  "source_url": "https://unsplash.com/photos/a-roll-of-white-paper-sitting-on-top-of-a-machine-M-OC9xaSn88",
+  "image_url": "https://images.unsplash.com/photo-1727159166219-37f6cb5be063",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "hammer-nails": {
+  "title": "black and silver claw hammer",
+  "source_url": "https://unsplash.com/photos/black-and-silver-claw-hammer-WLNkAHCjYOw",
+  "image_url": "https://images.unsplash.com/photo-1588619461335-b81119fee1b5",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "jars": {
+  "title": "six assorted spice containers",
+  "source_url": "https://unsplash.com/photos/six-assorted-spice-containers-L8ClxPGHdJE",
+  "image_url": "https://images.unsplash.com/photo-1559837957-bab8edc53c85",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "kraft-paper-rolls": {
+  "title": "brown wooden sticks on brown wooden surface",
+  "source_url": "https://unsplash.com/photos/brown-wooden-sticks-on-brown-wooden-surface-s3w-i2E4CdM",
+  "image_url": "https://images.unsplash.com/photo-1622722791926-6db414042091",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "kraft-pouch": {
+  "title": "white beans on brown paper",
+  "source_url": "https://unsplash.com/photos/white-beans-on-brown-paper-Rluin03tmd8",
+  "image_url": "https://images.unsplash.com/photo-1615485737646-a0363aba01ec",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "kraft-wrap-twine": {
+  "title": "Brown gift box tied with white string and red seal",
+  "source_url": "https://unsplash.com/photos/brown-gift-box-tied-with-white-string-and-red-seal-So6FM-ojMJM",
+  "image_url": "https://images.unsplash.com/photo-1764764138587-189f22804ec4",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "linen-folded": {
+  "title": "assorted textile",
+  "source_url": "https://unsplash.com/photos/assorted-textile-N_wGDmRL4hQ",
+  "image_url": "https://images.unsplash.com/photo-1545042746-ec9e5a59b359",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "mugs": {
+  "title": "white ceramic mug on white table",
+  "source_url": "https://unsplash.com/photos/white-ceramic-mug-on-white-table-u_jt9A7FADk",
+  "image_url": "https://images.unsplash.com/photo-1590422749897-47036da0b0ff",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "notebooks": {
+  "title": "red and black tablet computer case on gray textile",
+  "source_url": "https://unsplash.com/photos/red-and-black-tablet-computer-case-on-gray-textile-J8aY3wDYLc0",
+  "image_url": "https://images.unsplash.com/photo-1628627579979-b3a7394262c9",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "paper-clips": {
+  "title": "brown paper clips on white surface",
+  "source_url": "https://unsplash.com/photos/brown-paper-clips-on-white-surface-4DPWnBrjIPg",
+  "image_url": "https://images.unsplash.com/photo-1512278753435-c834ff8a597a",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "pins-jars": {
+  "title": "photo of bronze-colored thumb tacks and paper clips in clear glass bottles",
+  "source_url": "https://unsplash.com/photos/photo-of-bronze-colored-thumb-tacks-and-paper-clips-in-clear-glass-bottles-dWKqZcPLc8Y",
+  "image_url": "https://images.unsplash.com/photo-1516134162643-d3a8f6ef0623",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "plates-white": {
+  "title": "A stack of white plates stacked on top of each other",
+  "source_url": "https://unsplash.com/photos/a-stack-of-white-plates-stacked-on-top-of-each-other-I6JYNEnt5ag",
+  "image_url": "https://images.unsplash.com/photo-1737681707230-04eebda96529",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "pump-bottle": {
+  "title": "white plastic bottle on white table",
+  "source_url": "https://unsplash.com/photos/white-plastic-bottle-on-white-table-LtGwgq7r_mc",
+  "image_url": "https://images.unsplash.com/photo-1597931752949-98c74b5b159f",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "screwdrivers": {
+  "title": "a group of black and silver pens",
+  "source_url": "https://unsplash.com/photos/a-group-of-black-and-silver-pens-x9g65MOXsPY",
+  "image_url": "https://images.unsplash.com/photo-1663638964085-13ee056c0a2f",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "screws": {
+  "title": "a set of six screws sitting on top of a white surface",
+  "source_url": "https://unsplash.com/photos/a-set-of-six-screws-sitting-on-top-of-a-white-surface-sT0j3kkpRu8",
+  "image_url": "https://images.unsplash.com/photo-1687858477711-43b43893f3bd",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "soap": {
+  "title": "white and black box on white surface",
+  "source_url": "https://unsplash.com/photos/white-and-black-box-on-white-surface-7gZW8ZX6BqY",
+  "image_url": "https://images.unsplash.com/photo-1612800083273-24ea5c80313d",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "soap-bars-white": {
+  "title": "a couple of white square objects sitting on top of a cement floor",
+  "source_url": "https://unsplash.com/photos/a-couple-of-white-square-objects-sitting-on-top-of-a-cement-floor-oFJwbvZgKeo",
+  "image_url": "https://images.unsplash.com/photo-1622116556498-57529f7ace89",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "tin-can": {
+  "title": "stainless steel round container with handle",
+  "source_url": "https://unsplash.com/photos/stainless-steel-round-container-with-handle-w6slclJPb9M",
+  "image_url": "https://images.unsplash.com/photo-1629397545188-cf2da30db99b",
+  "licence": "Unsplash Licence",
+  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ },
+ "tools-light": {
+  "title": "silver steel tool on white surface",
+  "source_url": "https://unsplash.com/photos/silver-steel-tool-on-white-surface-t__61ap00Mc",
+  "image_url": "https://images.unsplash.com/photo-1611288870280-4a322b8ec7ec",
   "licence": "Unsplash Licence",
   "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
  },
@@ -48,61 +274,34 @@
   "licence": "Unsplash Licence",
   "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
  },
- "notebooks": {
-  "title": "red and black tablet computer case on gray textile",
-  "source_url": "https://unsplash.com/photos/red-and-black-tablet-computer-case-on-gray-textile-J8aY3wDYLc0",
-  "image_url": "https://images.unsplash.com/photo-1628627579979-b3a7394262c9",
+ "vases-ceramic": {
+  "title": "a couple of vases sitting on top of a table",
+  "source_url": "https://unsplash.com/photos/a-couple-of-vases-sitting-on-top-of-a-table--cfd9px-GV8",
+  "image_url": "https://images.unsplash.com/photo-1677761821976-4a2b4ed29437",
   "licence": "Unsplash Licence",
   "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
  },
- "pens": {
-  "title": "pink yellow and purple flower",
-  "source_url": "https://unsplash.com/photos/pink-yellow-and-purple-flower-rngTKHXumy0",
-  "image_url": "https://images.unsplash.com/photo-1624362772672-2871abf55d12",
+ "wooden-comb": {
+  "title": "green leaves on brown wooden chopping board",
+  "source_url": "https://unsplash.com/photos/green-leaves-on-brown-wooden-chopping-board-YCk6jsp8ZLQ",
+  "image_url": "https://images.unsplash.com/photo-1617727249656-7c8118778430",
   "licence": "Unsplash Licence",
   "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
  },
- "boxes": {
-  "title": "brown cardboard box on white table",
-  "source_url": "https://unsplash.com/photos/brown-cardboard-box-on-white-table-jpQs15STZZ4",
-  "image_url": "https://images.unsplash.com/photo-1631010231931-d2c396b444ec",
-  "licence": "Unsplash Licence",
-  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
- },
- "cups": {
-  "title": "a white coffee cup with a black lid",
-  "source_url": "https://unsplash.com/photos/a-white-coffee-cup-with-a-black-lid-c1jSLqPWjQ8",
-  "image_url": "https://images.unsplash.com/photo-1647972488473-ca3796499272",
-  "licence": "Unsplash Licence",
-  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
- },
- "soap": {
-  "title": "white and black box on white surface",
-  "source_url": "https://unsplash.com/photos/white-and-black-box-on-white-surface-7gZW8ZX6BqY",
-  "image_url": "https://images.unsplash.com/photo-1612800083273-24ea5c80313d",
-  "licence": "Unsplash Licence",
-  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
- },
- "bottles": {
-  "title": "green bottle on white table",
-  "source_url": "https://unsplash.com/photos/green-bottle-on-white-table-reEySFadyJQ",
-  "image_url": "https://images.unsplash.com/photo-1602143407151-7111542de6e8",
-  "licence": "Unsplash Licence",
-  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
- },
- "tools": {
-  "title": "a bunch of wrenches and other tools in a box",
-  "source_url": "https://unsplash.com/photos/a-bunch-of-wrenches-and-other-tools-in-a-box-OegFhZfw6Ok",
-  "image_url": "https://images.unsplash.com/photo-1637640125496-31852f042a60",
-  "licence": "Unsplash Licence",
-  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
- },
- "_hero": {
-  "file": "public/hero.jpg",
-  "title": "a lamp and books on a table",
-  "source_url": "https://unsplash.com/photos/a-lamp-and-books-on-a-table-ulh3-dLSXjI",
-  "image_url": "https://images.unsplash.com/photo-1667312939978-64cf31718a6e",
-  "licence": "Unsplash Licence",
-  "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+ "_scenes": {
+  "public/hero.jpg": {
+   "title": "a lamp and books on a table",
+   "source_url": "https://unsplash.com/photos/a-lamp-and-books-on-a-table-ulh3-dLSXjI",
+   "image_url": "https://images.unsplash.com/photo-1667312939978-64cf31718a6e",
+   "licence": "Unsplash Licence",
+   "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+  },
+  "public/scenes/kitchen.jpg": {
+   "title": "Kitchen shelves with white dishes, clear glasses, and a window",
+   "source_url": "https://unsplash.com/photos/kitchen-shelves-with-white-dishes-clear-glasses-and-a-window-wQooBLwd8wY",
+   "image_url": "https://images.unsplash.com/photo-1781358078297-d16242fe9272",
+   "licence": "Unsplash Licence",
+   "licence_note": "Unsplash Licence (free to use, no attribution required); checked on the search page with the 'free' licence filter, 2026-11-17"
+  }
  }
 }

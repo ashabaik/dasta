@@ -23,10 +23,15 @@ describe("sample listing photographs", () => {
   });
 
   it("every photograph names a licence that allows commercial use and its source page", () => {
-    for (const [name, c] of Object.entries(credits)) {
+    // Listing photographs, plus the scene photographs used on the home page.
+    const { _scenes, ...listings } = credits as unknown as { _scenes: Record<string, Record<string, string>> } & Record<string, Record<string, string>>;
+    const all = [...Object.entries(listings), ...Object.entries(_scenes)];
+    expect(all.length).toBe(images.length + 2);
+    for (const [name, c] of all) {
       expect(c.licence, name).toBe("Unsplash Licence");
       expect(c.source_url, name).toMatch(/^https:\/\/unsplash\.com\/photos\//);
     }
+    for (const file of Object.keys(_scenes)) expect(existsSync(join(process.cwd(), file)), file).toBe(true);
   });
 
   it("the files carry no metadata", async () => {

@@ -108,13 +108,15 @@ export async function seedWithEnv(env, { quiet = false, images = true, dataset =
 
     // 5. products
     const cats = Object.fromEntries((await db.query("select slug, id from public.categories")).rows.map((r) => [r.slug, r.id]));
-    for (const p of products) {
+    // Listing dates are spread over the past weeks (a fixed shuffle), so "newest first" means something.
+    for (const [i, p] of products.entries()) {
       await db.query(
         `insert into public.products (seller_id, category_id, part_number, condition, price_piastres, stock, title_en, title_ar, specs,
-                                      description_en, description_ar, unit_en, unit_ar, min_order_qty, lead_days, price_breaks)
-         values ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12, $13, $14, $15, $16::jsonb)`,
+                                      description_en, description_ar, unit_en, unit_ar, min_order_qty, lead_days, price_breaks, listed_on)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12, $13, $14, $15, $16::jsonb, current_date - $17::int)`,
         [sellerIds[p.seller], cats[p.cat], p.code, p.condition, p.egp * 100, p.stock, p.en, p.ar, JSON.stringify(p.specs ?? []),
-         p.desc_en ?? "", p.desc_ar ?? "", p.unit_en ?? "piece", p.unit_ar ?? "قطعة", p.moq ?? 1, p.lead ?? 3, JSON.stringify(p.breaks ?? [])],
+         p.desc_en ?? "", p.desc_ar ?? "", p.unit_en ?? "piece", p.unit_ar ?? "قطعة", p.moq ?? 1, p.lead ?? 3, JSON.stringify(p.breaks ?? []),
+         (i * 17) % 41],
       );
     }
 

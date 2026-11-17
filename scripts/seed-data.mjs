@@ -57,15 +57,13 @@ export const sellers = [
 
 const spec = (k_en, k_ar, v) => ({ k_en, k_ar, v });
 const S = {
-  mat: (v) => spec("Material", "الخامة", v),
-  cap: (v) => spec("Capacity", "السعة", v),
+  mat: (en, ar) => ({ k_en: "Material", k_ar: "الخامة", v: en, v_ar: ar }),
+  pack: (v) => spec("Carton", "الكرتونة", v),
   size: (v) => spec("Size", "المقاس", v),
-  carton: (v) => spec("Carton", "الكرتونة", v),
-  pages: (v) => spec("Pages", "عدد الصفحات", v),
-  weight: (v) => spec("Weight", "الوزن", v),
-  set: (v) => spec("Set", "الطقم", v),
 };
-const UNIT = { piece: ["piece", "قطعة"], set: ["set", "طقم"], box: ["box", "علبة"] };
+const UNIT = {
+  piece: ["piece", "قطعة"], set: ["set", "طقم"], box: ["box", "علبة"], pack: ["pack", "عبوة"], roll: ["roll", "رول"], metre: ["metre", "متر"], jar: ["jar", "برطمان"],
+};
 const DESC = [
   "Sold by the carton. Colours and finish can vary slightly between batches. Samples are available on request through messages.",
   "يُباع بالكرتونة. قد تختلف الألوان والتشطيب قليلًا بين التشغيلات. العينات متاحة عند الطلب عبر الرسائل.",
@@ -77,9 +75,11 @@ const breaks = (egp, moq) => [
   { qty: moq * 10, price_piastres: Math.round(egp * 85) },
 ];
 
-// One row per sample listing. `img` is the photograph in scripts/seed-images (see credits.json there).
+// One row per sample listing. `img` is its photograph in scripts/seed-images (see credits.json there);
+// no photograph is used for two listings. Names describe what the photograph shows.
 const row = (seller, cat, code, img, egp, unit, moq, lead, stock, en, ar, specs) => ({
-  seller, cat, code, img, egp, stock, en, ar, specs,
+  seller, cat, code, img, egp, stock, en, ar,
+  specs: specs.map(({ v_ar, ...x }) => x),
   condition: "new",
   unit_en: UNIT[unit][0], unit_ar: UNIT[unit][1],
   moq, lead, breaks: breaks(egp, moq),
@@ -87,26 +87,58 @@ const row = (seller, cat, code, img, egp, unit, moq, lead, stock, en, ar, specs)
 });
 
 export const products = [
-  row(1, "home-kitchen", "HK-101", "mugs", 68, "piece", 48, 6, 4800, "Stoneware cups, hand-finished", "أكواب خزفية بتشطيب يدوي", [S.mat("Stoneware"), S.cap("250 ml"), S.carton("12 pieces")]),
-  row(1, "home-kitchen", "HK-102", "jars", 54, "piece", 60, 4, 6000, "Glass storage jars, clip lid", "برطمانات زجاجية بغطاء محكم", [S.mat("Glass"), S.cap("1 l"), S.carton("12 pieces")]),
-  row(1, "home-kitchen", "HK-103", "boards", 145, "piece", 24, 8, 1200, "Acacia serving board", "لوح تقديم من خشب الأكاسيا", [S.mat("Acacia wood"), S.size("38 × 22 cm"), S.carton("6 pieces")]),
-  row(1, "home-kitchen", "HK-104", "cutlery", 420, "set", 12, 7, 600, "Stainless cutlery, 24 pieces", "طقم أدوات مائدة 24 قطعة", [S.mat("Stainless steel"), S.set("24 pieces"), S.carton("4 sets")]),
+  // Supplier 1 (the sample supplier account): home and kitchen
+  row(1, "home-kitchen", "HK-101", "mugs", 68, "piece", 48, 6, 4800, "Stoneware cups, hand-finished", "أكواب خزفية بتشطيب يدوي", [S.mat("Stoneware"), S.pack("12 pieces")]),
+  row(1, "home-kitchen", "HK-102", "jars", 54, "piece", 60, 4, 6000, "Glass storage jars, clip lid", "برطمانات زجاجية بغطاء محكم", [S.mat("Glass"), S.pack("12 pieces")]),
+  row(1, "home-kitchen", "HK-103", "boards", 145, "piece", 24, 8, 1200, "Acacia serving board", "لوح تقديم من خشب الأكاسيا", [S.mat("Acacia wood"), S.pack("6 pieces")]),
+  row(1, "home-kitchen", "HK-104", "cutlery", 420, "set", 12, 7, 600, "Stainless cutlery, 24 pieces", "طقم أدوات مائدة 24 قطعة", [S.mat("Stainless steel"), S.pack("4 sets")]),
+  row(1, "home-kitchen", "HK-105", "cookware-light", 1150, "set", 6, 10, 240, "Non-stick saucepan set, 3 pieces", "طقم حلل غير لاصقة 3 قطع", [S.mat("Aluminium, non-stick coating"), S.pack("2 sets")]),
+  row(1, "home-kitchen", "HK-106", "casserole", 310, "piece", 12, 9, 480, "Speckled ceramic casserole with lid", "طاجن خزف منقّط بغطاء", [S.mat("Ceramic"), S.pack("4 pieces")]),
+  row(1, "home-kitchen", "HK-107", "plates-white", 42, "piece", 72, 5, 7200, "Porcelain dinner plates", "أطباق بورسلين أبيض", [S.mat("Porcelain"), S.pack("24 pieces")]),
 
-  row(2, "home-kitchen", "HK-105", "baskets", 96, "piece", 30, 9, 1500, "Woven storage baskets", "سلال تخزين منسوجة", [S.mat("Rattan"), S.size("30 cm"), S.carton("10 pieces")]),
-  row(2, "textiles", "TX-401", "tote", 32, "piece", 200, 6, 20000, "Cotton tote bags, plain", "حقائب قماش قطنية سادة", [S.mat("Cotton canvas"), S.size("38 × 42 cm"), S.carton("100 pieces")]),
-  row(2, "textiles", "TX-402", "towels", 118, "piece", 50, 7, 2500, "Cotton bath towels", "مناشف حمام قطنية", [S.mat("Cotton"), S.size("70 × 140 cm"), S.carton("10 pieces")]),
+  // Supplier 2: home accessories and textiles
+  row(2, "home-kitchen", "HK-108", "baskets", 96, "piece", 30, 9, 1500, "Woven storage baskets", "سلال تخزين منسوجة", [S.mat("Rattan"), S.pack("10 pieces")]),
+  row(2, "home-kitchen", "HK-109", "carafe-glass", 165, "set", 24, 7, 960, "Glass carafe with tumbler", "دورق زجاج مع كوب", [S.mat("Glass"), S.pack("6 sets")]),
+  row(2, "home-kitchen", "HK-110", "vases-ceramic", 240, "set", 12, 10, 360, "Small ceramic vases, set of 3", "فازات خزف صغيرة، طقم 3 قطع", [S.mat("Ceramic"), S.pack("4 sets")]),
+  row(2, "textiles", "TX-401", "tote", 32, "piece", 200, 6, 20000, "Cotton tote bags, plain", "حقائب قماش قطنية سادة", [S.mat("Cotton canvas"), S.pack("100 pieces")]),
+  row(2, "textiles", "TX-402", "towels", 118, "piece", 50, 7, 2500, "Cotton bath towels", "مناشف حمام قطنية", [S.mat("Cotton"), S.pack("10 pieces")]),
+  row(2, "textiles", "TX-403", "blankets-folded", 285, "piece", 20, 9, 800, "Knitted throws", "بطاطين خفيفة محبوكة", [S.mat("Cotton blend"), S.pack("5 pieces")]),
+  row(2, "textiles", "TX-404", "linen-folded", 135, "metre", 50, 6, 5000, "Linen fabric lengths", "أقمشة كتان", [S.mat("Linen"), S.size("150 cm wide")]),
+  row(2, "textiles", "TX-405", "cushions", 75, "piece", 40, 8, 1600, "Patterned cushion covers", "أغطية وسائد منقوشة", [S.mat("Cotton"), S.pack("20 pieces")]),
+  row(2, "textiles", "TX-406", "fabric-roll", 2400, "roll", 2, 12, 60, "Raw cotton fabric roll", "رول قماش قطن خام", [S.mat("Cotton"), S.size("50 m roll")]),
 
-  row(3, "office-supplies", "OF-201", "notebooks", 58, "piece", 100, 5, 10000, "Hardcover notebooks, A5", "دفاتر بغلاف مقوى مقاس A5", [S.size("A5"), S.pages("192"), S.carton("20 pieces")]),
-  row(3, "office-supplies", "OF-202", "pens", 39, "box", 120, 4, 12000, "Colouring pencils, box of 24", "أقلام تلوين، علبة 24 قلم", [S.set("24 pencils"), S.carton("48 boxes")]),
+  // Supplier 3: office supplies and hand tools
+  row(3, "office-supplies", "OF-201", "notebooks", 58, "piece", 100, 5, 10000, "Hardcover notebooks, A5", "دفاتر بغلاف مقوى مقاس A5", [S.size("A5"), S.pack("20 pieces")]),
+  row(3, "office-supplies", "OF-202", "colour-pencils", 39, "box", 120, 4, 12000, "Colour pencils, box of 24", "أقلام تلوين، علبة 24 قلم", [S.pack("48 boxes")]),
+  row(3, "office-supplies", "OF-203", "paper-clips", 18, "box", 200, 3, 20000, "Copper paper clips", "مشابك ورق نحاسية", [S.size("100 clips per box"), S.pack("100 boxes")]),
+  row(3, "office-supplies", "OF-204", "pins-jars", 46, "jar", 60, 5, 3000, "Push pins and clips in glass jars", "دبابيس ومشابك في برطمان زجاج", [S.pack("12 jars")]),
+  row(3, "office-supplies", "OF-205", "envelopes", 35, "pack", 100, 4, 8000, "Cream envelopes", "أظرف كريمي", [S.size("50 envelopes per pack"), S.pack("40 packs")]),
+  row(3, "office-supplies", "OF-206", "binder-clips", 14, "box", 240, 3, 24000, "Binder clips", "مشابك كلبس معدنية", [S.size("12 clips per box"), S.pack("120 boxes")]),
+  row(3, "office-supplies", "OF-207", "blank-cards", 28, "pack", 100, 4, 9000, "Blank cards", "كروت سادة", [S.size("50 cards per pack"), S.pack("50 packs")]),
+  row(3, "tools-hardware", "TL-602", "screwdrivers", 55, "set", 60, 5, 3000, "Screwdrivers, set of 2", "مفكات، طقم قطعتين", [S.pack("30 sets")]),
+  row(3, "tools-hardware", "TL-603", "hammer-nails", 95, "piece", 36, 6, 1800, "Claw hammer", "شاكوش بمخلب", [S.mat("Steel head, rubber grip"), S.pack("12 pieces")]),
 
-  row(4, "packaging", "PK-301", "boxes", 9, "piece", 500, 3, 50000, "Kraft mailer boxes", "علب شحن كرافت", [S.mat("Kraft board"), S.size("25 × 18 × 8 cm"), S.carton("50 pieces")]),
-  row(4, "packaging", "PK-302", "cups", 3, "piece", 1000, 3, 100000, "Paper cups with lids, 8 oz", "أكواب ورقية بغطاء 8 أونصة", [S.cap("8 oz"), S.carton("1,000 pieces")]),
+  // Supplier 4: packaging
+  row(4, "packaging", "PK-301", "boxes", 9, "piece", 500, 3, 50000, "Kraft mailer boxes", "علب شحن كرافت", [S.mat("Kraft board"), S.pack("50 pieces")]),
+  row(4, "packaging", "PK-302", "cups", 3, "piece", 1000, 3, 100000, "Paper cups with lids, 8 oz", "أكواب ورقية بغطاء 8 أونصة", [S.pack("1,000 pieces")]),
+  row(4, "packaging", "PK-303", "kraft-pouch", 4, "piece", 1000, 4, 100000, "Kraft stand-up pouches with window", "أكياس كرافت بنافذة وسحّاب", [S.mat("Kraft paper"), S.pack("1,000 pieces")]),
+  row(4, "packaging", "PK-304", "tin-can", 22, "piece", 200, 6, 12000, "Tin cans with handle", "علب صفيح بيد", [S.mat("Tinplate"), S.pack("50 pieces")]),
+  row(4, "packaging", "PK-305", "kraft-wrap-twine", 48, "set", 60, 4, 3000, "Kraft wrapping paper with cotton twine", "ورق كرافت للتغليف مع خيط قطن", [S.pack("30 sets")]),
+  row(4, "packaging", "PK-306", "kraft-paper-rolls", 26, "roll", 100, 4, 8000, "Kraft paper rolls", "رولات ورق كرافت", [S.mat("Kraft paper"), S.pack("25 rolls")]),
+  row(4, "packaging", "PK-307", "cork-jars", 38, "piece", 120, 6, 6000, "Glass jars with cork lids", "برطمانات زجاج بغطاء فلين", [S.mat("Glass, cork"), S.pack("24 pieces")]),
 
-  row(5, "personal-care", "PC-501", "soap", 27, "piece", 150, 5, 15000, "Handmade soap bars", "صابون مصنوع يدويًا", [S.weight("100 g"), S.carton("50 pieces")]),
-  row(5, "personal-care", "PC-502", "bottles", 135, "piece", 40, 8, 2000, "Insulated steel bottle, 500 ml", "زجاجة ستيل حافظة للحرارة 500 مل", [S.mat("Stainless steel"), S.cap("500 ml"), S.carton("20 pieces")]),
+  // Supplier 5: personal care, plus one hand tool
+  row(5, "personal-care", "PC-501", "soap", 27, "piece", 150, 5, 15000, "Handmade soap bars", "صابون مصنوع يدويًا", [S.pack("50 pieces")]),
+  row(5, "personal-care", "PC-502", "bottles", 135, "piece", 40, 8, 2000, "Insulated steel bottle, 500 ml", "زجاجة ستيل حافظة للحرارة 500 مل", [S.mat("Stainless steel"), S.pack("20 pieces")]),
+  row(5, "personal-care", "PC-503", "wooden-comb", 24, "piece", 120, 5, 9000, "Wooden comb", "مشط خشب", [S.mat("Wood"), S.pack("60 pieces")]),
+  row(5, "personal-care", "PC-504", "pump-bottle", 19, "piece", 300, 5, 30000, "Refillable pump bottle", "عبوة بمضخة للصابون السائل", [S.mat("Plastic"), S.pack("100 pieces")]),
+  row(5, "personal-care", "PC-505", "balm-tin", 33, "piece", 144, 6, 7200, "Balm in a tin", "بلسم في علبة معدنية", [S.pack("72 pieces")]),
+  row(5, "personal-care", "PC-506", "soap-bars-white", 12, "piece", 300, 4, 30000, "White soap bars", "قوالب صابون أبيض", [S.pack("100 pieces")]),
+  row(5, "personal-care", "PC-507", "cream-jars", 8, "piece", 500, 5, 50000, "White cosmetic jars", "برطمانات كريم بيضاء", [S.mat("Plastic"), S.pack("250 pieces")]),
+  row(5, "tools-hardware", "TL-601", "tools-light", 120, "piece", 30, 6, 1500, "Adjustable wrench", "مفتاح فرنساوي", [S.mat("Steel"), S.pack("10 pieces")]),
 
   // Supplier 6 is still waiting for approval, so this listing is hidden from buyers.
-  row(6, "tools-hardware", "TL-601", "tools", 380, "set", 15, 6, 300, "Combination spanner set", "طقم مفاتيح بلدي ومشرشر", [S.set("12 pieces"), S.carton("5 sets")]),
+  row(6, "tools-hardware", "TL-604", "screws", 16, "box", 200, 3, 20000, "Wood screws", "مسامير قلاووظ للخشب", [S.size("100 screws per box"), S.pack("100 boxes")]),
 ];
 
 // Sample orders, each taken through the real order functions up to the state named in `to`.
