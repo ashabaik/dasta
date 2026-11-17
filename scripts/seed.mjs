@@ -18,6 +18,14 @@ export async function seed(target, { quiet = false } = {}) {
     await db.query("delete from public.buyers");
     await db.query("delete from private.identity_reveals");
     for (;;) {
+      // uploaded photos
+      const { data: files, error } = await admin.storage.from("product-images").list("", { limit: 100 });
+      if (error) throw error;
+      if (!files.length) break;
+      const r = await admin.storage.from("product-images").remove(files.map((f) => f.name));
+      if (r.error) throw r.error;
+    }
+    for (;;) {
       const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
       if (error) throw error;
       if (!data.users.length) break;
