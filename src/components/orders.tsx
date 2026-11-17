@@ -155,11 +155,12 @@ export function OrderHistory({ events, t, locale }: { events: { type: string; ac
   );
 }
 
-export function AdminNav({ locale, t, current }: { locale: Locale; t: Dict; current: "sellers" | "orders" | "money" }) {
+export function AdminNav({ locale, t, current }: { locale: Locale; t: Dict; current: "sellers" | "orders" | "money" | "moderation" }) {
   const items = [
     { key: "sellers", href: `/${locale}/admin`, label: t.adminNav.sellers },
     { key: "orders", href: `/${locale}/admin/orders`, label: t.adminNav.orders },
     { key: "money", href: `/${locale}/admin/money`, label: t.adminNav.money },
+    { key: "moderation", href: `/${locale}/admin/moderation`, label: t.adminNav.moderation },
   ];
   return (
     <nav className="mt-4 flex flex-wrap gap-2" aria-label={t.admin.title}>

@@ -124,3 +124,26 @@ export const sampleOrders = [
   { buyer: "buyer2", part: "HV-BV-0034", qty: 5, to: "completed" },
   { buyer: "buyer1", part: "HH-QC-0012", qty: 6, to: "refunded" },
 ];
+
+// Sample conversations. The last two messages of the second one are meant to be stopped by the filter,
+// so the admin's moderation queue has something in it. The number in it is made up.
+export const sampleThreads = [
+  {
+    buyer: "buyer1", seller: "seller1", part: "HV-DC-4306",
+    messages: [
+      ["buyer", "Hello. Is the coil 24 V DC or 110 V AC?"],
+      ["seller", "24 V DC. The 110 V AC version is available on request."],
+      ["buyer", "Good. I need 2 pieces this week."],
+      ["seller", "Both are in stock. You can order from the listing page."],
+    ],
+  },
+  {
+    buyer: "buyer2", seller: "seller2", part: "HC-DA-1056",
+    messages: [
+      ["buyer", "هل الأسطوانة جديدة وفي الكرتونة الأصلية؟"],
+      ["seller", "نعم جديدة، والتسليم والضمان عن طريق المنصة."],
+      ["seller", "كلمني على ٠١٠٠٠٠٠٠١٥٥ ونتفق على سعر أحسن"],
+      ["buyer", "do you have whatsapp?"],
+    ],
+  },
+];

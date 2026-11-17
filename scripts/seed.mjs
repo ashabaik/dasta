@@ -4,7 +4,8 @@
 import pg from "pg";
 import { createClient } from "@supabase/supabase-js";
 import { targetEnv, targetFromArgs } from "./env.mjs";
-import { users, sellers, products, sampleOrders, sellerIdentity, buyerIdentity } from "./seed-data.mjs";
+import { users, sellers, products, sampleOrders, sampleThreads, sellerIdentity, buyerIdentity } from "./seed-data.mjs";
+import { checkText } from "../src/lib/contact-filter.ts";
 
 export async function seed(target, { quiet = false } = {}) {
   const env = targetEnv(target);
@@ -14,6 +15,7 @@ export async function seed(target, { quiet = false } = {}) {
   await db.connect();
   try {
     // 1. wipe
+    await db.query("truncate private.chat_strikes, private.message_originals, public.messages, public.threads");
     await db.query(`truncate private.ledger_entries, private.ledger_txns, private.payouts, private.webhook_events,
       private.payment_intents, private.dispute_notes, public.disputes, public.order_events, public.orders`);
     await db.query("update private.settings set value = '800'::jsonb where key = 'commission_bps'");
@@ -140,8 +142,20 @@ export async function seed(target, { quiet = false } = {}) {
       if (o.to === "paid_out") await asUser("admin", "select public.admin_payout_seller($1)", [sellerIds[sellers.find((x) => x.code === seller).n]]);
     }
 
+    // 7. sample conversations, posted through the real function with the real filter's verdict
+    for (const th of sampleThreads) {
+      const id = (await asUser(th.buyer, "select public.chat_open_thread($1) as id", [await refOf(th.part)])).id;
+      const history = { buyer: [], seller: [] };
+      for (const [who, body] of th.messages) {
+        const key = who === "buyer" ? th.buyer : th.seller;
+        const verdict = checkText(body, history[who]);
+        await db.query("select public.chat_post_message($1, $2, $3, $4, $5)", [id, ids[key], body, verdict.verdict, verdict.reasons]);
+        history[who].push(body);
+      }
+    }
+
     const c = await db.query(
-      "select (select count(*) from public.sellers) sellers, (select count(*) from public.products) products, (select count(*) from public.buyers) buyers, (select count(*) from public.orders) orders",
+      "select (select count(*) from public.sellers) sellers, (select count(*) from public.products) products, (select count(*) from public.buyers) buyers, (select count(*) from public.orders) orders, (select count(*) from public.messages) messages",
     );
     log(`seeded ${target}:`, c.rows[0], `users: ${users.length}`);
     return { ids, sellerIds };

@@ -25,8 +25,11 @@ const fail = (msg) => {
   console.error("  FAIL " + msg);
 };
 
-function canariesFor(own) {
-  return [...sellers.filter((s) => !own.includes(s.n)).flatMap((s) => sellerCanaries(s.n)), ...BUYER_CANARIES];
+// Text of the two seeded chat messages that the filter stopped. Only the admin may ever see it.
+const CHAT_CANARIES = ["٠١٠٠٠٠٠٠١٥٥", "01000000155", "نتفق على سعر", "do you have whatsapp"];
+
+function canariesFor(own, { admin = false } = {}) {
+  return [...sellers.filter((s) => !own.includes(s.n)).flatMap((s) => sellerCanaries(s.n)), ...BUYER_CANARIES, ...(admin ? [] : CHAT_CANARIES)];
 }
 
 function findCanaries(text, canaries) {
@@ -62,9 +65,9 @@ function linksIn(html) {
   return out;
 }
 
-async function crawl(label, key, own, seeds) {
+async function crawl(label, key, own, seeds, opts = {}) {
   const cookie = await cookieFor(key);
-  const canaries = canariesFor(own);
+  const canaries = canariesFor(own, opts);
   const queue = ["/en", "/ar", ...seeds];
   const seen = new Set();
   let pages = 0;
@@ -127,6 +130,7 @@ async function main() {
     await db.connect();
     const refs = (await db.query("select p.ref, s.code from public.products p join public.sellers s on s.id = p.seller_id")).rows;
     const orders = (await db.query("select no, status, buyer_code, seller_code, total_piastres from public.orders order by created_at")).rows;
+    const threads = (await db.query("select id, buyer_code, seller_code from public.threads")).rows;
     await db.end();
     const pendingRef = refs.find((r) => r.code === "S-W6PA").ref;
     const seller1Ref = refs.find((r) => r.code === "S-7Q4X").ref;
@@ -136,7 +140,8 @@ async function main() {
       "/en/admin", "/en/seller", "/en/buyer", "/en/seller/products/new", `/en/seller/products/${seller1Ref}`,
       `/en/p/${pendingRef}`, "/en/s/S-W6PA", ...sellers.map((s) => `/en/s/${s.code}`), ...refs.map((r) => `/en/p/${r.ref}`),
       "/en?q=MKPRIV", "/en?q=sample", "/en?q=000", "/en/p/P-NOPE00", "/en/s/S-NOPE",
-      "/en/admin/orders", "/en/admin/money", "/ar/admin/money",
+      "/en/admin/orders", "/en/admin/money", "/ar/admin/money", "/en/admin/moderation", "/en/messages", "/ar/messages",
+      ...threads.flatMap((t) => [`/en/messages/${t.id}`, `/ar/messages/${t.id}`]),
       ...orders.flatMap((o) => [`/en/orders/${o.no}`, `/ar/orders/${o.no}`, `/en/orders/${o.no}/invoice`, `/en/pay/${o.no}`]),
     ];
 
@@ -145,7 +150,9 @@ async function main() {
     const buyer = await crawl("buyer", "buyer1", [], seeds);
     const other = await crawl("another seller", "seller2", [2], seeds);
     await crawl("seller not approved yet", "seller6", [6], seeds);
-    await crawl("admin (before any reveal)", "admin", [], seeds);
+    await crawl("admin (before any reveal)", "admin", [], seeds, { admin: true });
+    // The two people in the conversation that has stopped messages: neither may see the stopped text.
+    await crawl("buyer who was sent a blocked message", "buyer2", [], seeds);
 
     console.log("Checks:");
     for (const [label, c] of [["visitor", anon.cookie], ["buyer", buyer.cookie], ["another seller", other.cookie]]) {
@@ -195,6 +202,31 @@ async function main() {
       for (const path of ["/en/admin/orders", "/en/admin/money"]) await expectRedirect("buyer", buyer.cookie, path);
     }
 
+    // Conversations: only the two parties and the admin can open one.
+    {
+      const a = threads.find((t) => t.buyer_code === "B-4K7PD");
+      const b = threads.find((t) => t.buyer_code === "B-9WX2M");
+      const checks = [
+        ["buyer opening their own conversation", buyer.cookie, `/en/messages/${a.id}`, 200],
+        ["buyer opening someone else's conversation", buyer.cookie, `/en/messages/${b.id}`, 404],
+        ["seller opening a conversation of another seller", other.cookie, `/en/messages/${a.id}`, 404],
+        ["seller opening their own conversation", other.cookie, `/en/messages/${b.id}`, 200],
+      ];
+      for (const [label, cookie, path, want] of checks) {
+        const r = await get(path, cookie);
+        if (r.status !== want) fail(`${label}: ${path} should be ${want}, got ${r.status}`);
+      }
+      const v = await get(`/en/messages/${a.id}`, anon.cookie);
+      if (!(v.status >= 300 && v.status < 400)) fail(`visitor opening a conversation should be sent to sign-in, got ${v.status}`);
+      await expectRedirect("buyer", buyer.cookie, "/en/admin/moderation");
+      // Control: the admin's moderation page does show the stopped text (so the scanner would see it).
+      const mod = await get("/en/admin/moderation", await cookieFor("admin"));
+      if (!mod.body.includes("do you have whatsapp")) fail("control: the admin's moderation queue should show the held message");
+      // The sender of a stopped message sees a placeholder, not the text.
+      const senderView = await get(`/en/messages/${b.id}`, other.cookie);
+      if (!senderView.body.includes("Not delivered")) fail("the sender should see a 'not delivered' placeholder for their blocked message");
+    }
+
     // Webhook: the signature is checked before anything else, and a replay changes nothing.
     {
       const hook = (body, hmac, method = "POST") =>
@@ -224,7 +256,7 @@ async function main() {
       const paid = await get(`/en/orders/${unpaid.no}`, buyer.cookie);
       if (!paid.body.includes("Paid, held by Makbas")) fail("webhook: the order page does not show the captured payment");
     }
-    console.log("  access rules, order pages, webhook and control: done");
+    console.log("  access rules, order pages, conversations, webhook and control: done");
   } finally {
     if (server) spawn("taskkill", ["/pid", String(server.pid), "/T", "/F"], { stdio: "ignore" });
     await teardown();

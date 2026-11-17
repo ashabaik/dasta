@@ -8,6 +8,7 @@ import { getViewer } from "@/lib/session";
 import { asLocale } from "@/lib/i18n";
 import { parseEgpToPiastres } from "@/lib/format";
 import { MAX_PHOTOS_PER_PRODUCT, MAX_PHOTO_BYTES, reencodePhoto } from "@/lib/photo";
+import { checkListing } from "@/lib/contact-filter";
 
 // Every action below is a public endpoint. Each one either goes through the visitor's own database
 // session (row level security decides) or checks ownership first before using the privileged client.
@@ -115,6 +116,11 @@ export async function saveProduct(formData: FormData) {
     description_ar: str(formData, "description_ar"),
     specs: parseSpecs(String(formData.get("specs") ?? "")),
   };
+
+  // Seller-written text goes through the same contact filter as chat. A hit saves the listing as
+  // "under review": hidden from buyers until the admin approves it. (The database has its own check too.)
+  const listingCheck = checkListing([row.title_en, row.title_ar, row.part_number, row.description_en, row.description_ar, ...row.specs.map((x) => `${x.k_en} ${x.v}`)]);
+  if (listingCheck.verdict !== "clean") row.status = "flagged";
 
   const supabase = await supabaseServer();
   if (ref) {

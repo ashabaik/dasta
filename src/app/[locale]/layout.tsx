@@ -49,6 +49,9 @@ export default async function LocaleLayout({ children, params }: { children: Rea
               <LocaleSwitch locale={locale} label={t.otherLanguage} />
               {viewer && dashboard ? (
                 <>
+                  <Link href={`/${locale}/messages`} className="btn btn-ghost">
+                    {t.chat.title}
+                  </Link>
                   <Link href={dashboard} className="btn btn-ghost">
                     {t.roles[viewer.role]}
                     {code ? <span className="code text-muted">{code}</span> : null}

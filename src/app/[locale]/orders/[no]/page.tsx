@@ -7,6 +7,7 @@ import { formatDateTime } from "@/lib/format";
 import { Money } from "@/components/ui";
 import { EscrowTimeline, ORDER_SELECT, OrderHistory, StatusPill, type OrderRow } from "@/components/orders";
 import { orderStep } from "../../order-actions";
+import { openThread } from "../../chat-actions";
 
 type Search = Record<string, string | string[] | undefined>;
 
@@ -209,6 +210,20 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
             {viewer.role !== "seller" && order.paid_at ? (
               <Link href={`/${locale}/orders/${order.no}/invoice`} className="btn btn-ghost self-start">
                 {o.actions.invoice}
+              </Link>
+            ) : null}
+            {viewer.role === "buyer" ? (
+              <form action={openThread}>
+                <input type="hidden" name="locale" value={locale} />
+                <input type="hidden" name="ref" value={order.product_ref} />
+                <button type="submit" className="btn btn-ghost">
+                  {t.chat.messageSeller}
+                </button>
+              </form>
+            ) : null}
+            {viewer.role === "seller" ? (
+              <Link href={`/${locale}/messages`} className="btn btn-ghost self-start">
+                {t.chat.title}
               </Link>
             ) : null}
             <p className="text-[13px] text-muted">{t.product.privacyNote}</p>

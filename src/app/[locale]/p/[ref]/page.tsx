@@ -5,6 +5,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { formatMonth } from "@/lib/format";
 import { getViewer } from "@/lib/session";
 import { createOrder } from "../../order-actions";
+import { openThread } from "../../chat-actions";
 import { CARD_SELECT, CategoryArt, Money, ProductCard, SellerChip, SpecList, imageUrl, type CardProduct, type Spec } from "@/components/ui";
 
 type Detail = CardProduct & {
@@ -105,6 +106,15 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
               <Link href={`/${locale}/signin`} className="btn btn-ghost">
                 {t.orders.signInToOrder}
               </Link>
+            ) : null}
+            {viewer?.role === "buyer" ? (
+              <form action={openThread}>
+                <input type="hidden" name="locale" value={locale} />
+                <input type="hidden" name="ref" value={p.ref} />
+                <button type="submit" className="btn btn-ghost" data-testid="message-seller">
+                  {t.chat.messageSeller}
+                </button>
+              </form>
             ) : null}
           </div>
 
