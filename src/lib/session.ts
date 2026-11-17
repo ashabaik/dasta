@@ -1,4 +1,6 @@
 import "server-only";
+import { cache } from "react";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "./supabase/server";
 
@@ -16,8 +18,14 @@ export type Viewer = {
 /**
  * Who is looking at the page. The answer comes from the database (function whoami), which reads the
  * role from the private schema using the verified session. Nothing here trusts the browser.
+ *
+ * Two savings, neither of which changes the answer:
+ *  - a visitor with no session cookie is not signed in, so the database is not asked at all;
+ *  - the layout and the page of one request share a single lookup.
  */
-export async function getViewer(): Promise<Viewer | null> {
+export const getViewer = cache(async (): Promise<Viewer | null> => {
+  const store = await cookies();
+  if (!store.getAll().some((c) => /^sb-.+-auth-token/.test(c.name))) return null;
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("whoami");
   if (error || !data || data.length === 0) return null;
@@ -30,7 +38,7 @@ export async function getViewer(): Promise<Viewer | null> {
     buyerId: r.buyer_id,
     buyerCode: r.buyer_code,
   };
-}
+});
 
 /** For dashboards: sends anyone without the role to the sign-in page. */
 export async function requireRole(locale: string, role: Role): Promise<Viewer> {

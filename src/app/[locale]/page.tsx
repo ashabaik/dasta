@@ -43,12 +43,16 @@ export default async function HomePage({ params, searchParams }: { params: Promi
   const browsing = Boolean(q || cat || region || sort || one(sp.view) || page > 1);
 
   const supabase = await supabaseServer();
-  const { data: categories } = await supabase.from("categories").select("id, slug, name_en, name_ar").order("sort");
+  const categoryQuery = supabase.from("categories").select("id, slug, name_en, name_ar").order("sort");
 
-  if (browsing) return <Catalogue locale={locale} t={t} categories={categories ?? []} q={q} cat={cat} region={region} sort={sort} page={page} />;
+  if (browsing) return <Catalogue locale={locale} t={t} categories={(await categoryQuery).data ?? []} q={q} cat={cat} region={region} sort={sort} page={page} />;
 
+  // Both questions go to the database together, so the first byte of the page is not kept waiting.
   // Only public columns are selected, and row level security filters the rows for this visitor.
-  const { data } = await supabase.from("products").select(CARD_SELECT).eq("status", "active").eq("sellers.status", "active").order("listed_on", { ascending: false }).order("ref").limit(400);
+  const [{ data: categories }, { data }] = await Promise.all([
+    categoryQuery,
+    supabase.from("products").select(CARD_SELECT).eq("status", "active").eq("sellers.status", "active").order("listed_on", { ascending: false }).order("ref").limit(400),
+  ]);
   const products = (data ?? []) as unknown as CardProduct[];
   // Every number on this page is counted from the rows above.
   const live = (categories ?? [])
