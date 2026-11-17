@@ -9,55 +9,63 @@ declare global {
   }
 }
 
+const DESKTOP = "(min-width: 1024px) and (pointer: fine)";
+
 /**
  * The home page's motion layer. The page is complete without it: this only directs what is already there.
  *
- *   Opening shot      photograph first, then the headline lines, then the supporting line and the actions
+ *   Opening shot      photograph first, then the headline, then the supporting line and the actions
  *   Signature scene   on a desktop the category row is held and travels sideways with the scroll
  *   Supporting        slow parallax on the hero photograph, product photographs uncover once,
  *                     the closing line rises once
  *
- * Loaded after the first paint. Nothing runs for visitors who prefer reduced motion (the inline gate in
- * the layout never adds `has-motion` for them). Phones get the entrance and the one-time reveals only:
- * no smooth-scroll layer, no pinning. Text is split by lines, never by letters, so Arabic stays joined,
- * and sideways travel is mirrored in right-to-left.
+ * Two choreographies, not one made smaller:
+ *   - Phones and touch screens: the opening and the one-time reveals are plain CSS (see mockups.css);
+ *     this component only tells the stylesheet when something has scrolled into view. No animation
+ *     library is downloaded, no smooth-scroll layer, nothing held.
+ *   - Desktop: GSAP (ScrollTrigger, SplitText) and Lenis are loaded after the first paint for the
+ *     line-by-line headline, the parallax and the held scene.
+ *
+ * Nothing runs for visitors who prefer reduced motion: the inline gate in the layout never adds
+ * `has-motion` for them. Text is split by lines, never by letters, so Arabic stays joined, and sideways
+ * travel is mirrored in right-to-left.
  */
 export function HomeMotion() {
   useEffect(() => {
     const root = document.documentElement;
     if (!root.classList.contains("has-motion")) return;
+    window.__dastaMotion = true;
     let cancelled = false;
-    let cleanup = () => {};
+    const undo: (() => void)[] = [];
 
-    (async () => {
-      const [{ gsap }, { ScrollTrigger }, { SplitText }, { default: Lenis }] = await Promise.all([import("gsap"), import("gsap/ScrollTrigger"), import("gsap/SplitText"), import("lenis")]);
-      if (cancelled || !root.classList.contains("has-motion")) return;
-      window.__dastaMotion = true;
-      gsap.registerPlugin(ScrollTrigger, SplitText);
-
-      const rtl = root.dir === "rtl";
-      const mm = gsap.matchMedia();
-
-      mm.add({ desk: "(min-width: 1024px) and (pointer: fine)", small: "(max-width: 1023.98px), (pointer: coarse)" }, (context) => {
-        const desk = Boolean(context.conditions?.desk);
-        const hero = document.querySelector<HTMLElement>("[data-hero]");
-        if (!hero) return;
-
-        // Smooth scrolling only where scroll-driven scenes exist. It runs from GSAP's ticker and reports
-        // every scroll to ScrollTrigger, which keeps the held scene from stuttering.
-        let lenis: InstanceType<typeof Lenis> | undefined;
-        const raf = (time: number) => lenis?.raf(time * 1000);
-        if (desk) {
-          lenis = new Lenis({ lerp: 0.1, anchors: true, autoRaf: false });
-          lenis.on("scroll", ScrollTrigger.update);
-          gsap.ticker.add(raf);
+    // One-time reveals, for every screen: mark what has come into view; the stylesheet does the rest.
+    const seen = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add("is-in");
+          seen.unobserve(entry.target);
         }
+      },
+      { rootMargin: "0px 0px -10% 0px" },
+    );
+    document.querySelectorAll("[data-photo-reveal], [data-closing-text], [data-closing-fade]").forEach((el) => seen.observe(el));
+    undo.push(() => seen.disconnect());
 
-        // Opening shot.
+    const desktop = window.matchMedia(DESKTOP);
+    const startDesktop = async () => {
+      const [{ gsap }, { ScrollTrigger }, { SplitText }, { default: Lenis }] = await Promise.all([import("gsap"), import("gsap/ScrollTrigger"), import("gsap/SplitText"), import("lenis")]);
+      if (cancelled || !desktop.matches) return;
+      gsap.registerPlugin(ScrollTrigger, SplitText);
+      const rtl = root.dir === "rtl";
+      const hero = document.querySelector<HTMLElement>("[data-hero]");
+      if (!hero) return;
+
+      const ctx = gsap.context(() => {
+        // Opening shot. Built paused and started once the photograph is there and the setup work is over,
+        // so a busy first second cannot swallow it.
         gsap.set("[data-hero-fade]", { y: 18 });
-        // Built paused and started once the photograph is decoded and the setup work is over, so a busy
-        // first second cannot swallow it. Lag smoothing is switched off only afterwards, for the scroll scenes.
-        const opening = gsap.timeline({ paused: true, defaults: { ease: "power3.out" }, onComplete: () => { if (desk) gsap.ticker.lagSmoothing(0); } });
+        const opening = gsap.timeline({ paused: true, defaults: { ease: "power3.out" }, onComplete: () => gsap.ticker.lagSmoothing(0) });
         opening
           .fromTo("[data-hero-media]", { clipPath: "inset(9% 9% 9% 9% round 28px)" }, { clipPath: "inset(0% 0% 0% 0% round 0px)", duration: 1.3, ease: "expo.out" }, 0)
           .fromTo("[data-hero-img]", { scale: 1.16 }, { scale: 1, duration: 1.7 }, 0)
@@ -78,22 +86,20 @@ export function HomeMotion() {
         const start = () => {
           if (started) return;
           started = true;
-          requestAnimationFrame(() => requestAnimationFrame(() => { opening.play(); headline?.play(); }));
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => {
+              opening.play();
+              headline?.play();
+            }),
+          );
         };
         const heroImg = document.querySelector<HTMLImageElement>("[data-hero-img]");
-        // Start as soon as the photograph is there; never wait long for it.
-        const wait = window.setTimeout(start, 700);
+        const wait = window.setTimeout(start, 700); // never wait long for the photograph
         if (!heroImg || (heroImg.complete && heroImg.naturalWidth > 0)) start();
         else heroImg.addEventListener("load", start, { once: true });
+        undo.push(() => window.clearTimeout(wait));
 
-        // Product photographs uncover once, row by row.
-        ScrollTrigger.batch("[data-photo-reveal]", {
-          start: "top 90%",
-          once: true,
-          onEnter: (els) => gsap.fromTo(els, { clipPath: "inset(0% 0% 100% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.05, ease: "power4.out", stagger: 0.07 }),
-        });
-
-        // The closing line rises once, when the page has lifted far enough to show it.
+        // The closing line rises line by line, when the page has lifted far enough to show it.
         SplitText.create("[data-closing-text]", {
           type: "lines",
           mask: "lines",
@@ -106,61 +112,60 @@ export function HomeMotion() {
         });
         gsap.fromTo("[data-closing-fade]", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.09, delay: 0.45, scrollTrigger: { trigger: "[data-curtain-end]", start: "top 72%", once: true } });
 
-        let unpin = () => {};
-        if (desk) {
-          // Slow parallax: the photograph drifts a little while the first screen leaves.
-          gsap.to("[data-hero-parallax]", { yPercent: 4.5, ease: "none", scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: true } });
-
-          // Signature scene: the category row is held and travels sideways with the scroll.
-          const scene = document.querySelector<HTMLElement>("[data-cat-scene]");
-          const track = scene?.querySelector<HTMLElement>("[data-cat-track]");
-          if (scene && track) {
-            scene.classList.add("is-held");
-            const travel = () => Math.max(0, track.scrollWidth - scene.clientWidth + window.innerWidth * 0.06);
-            const tween = gsap.to(track, {
-              x: () => (rtl ? travel() : -travel()), // mirrored in right-to-left
-              ease: "none",
-              scrollTrigger: { trigger: scene, start: "top top", end: () => `+=${travel()}`, scrub: 0.9, pin: true, anticipatePin: 1, invalidateOnRefresh: true },
-            });
-            // Keyboard: when focus lands on a category that is off screen, scroll the scene to it.
-            const onFocus = (event: FocusEvent) => {
-              const el = event.target as HTMLElement;
-              const st = tween.scrollTrigger;
-              if (!st || !track.contains(el)) return;
-              const a = el.getBoundingClientRect();
-              const b = track.getBoundingClientRect();
-              const centre = (rtl ? b.right - a.right : a.left - b.left) + a.width / 2;
-              const progress = Math.min(1, Math.max(0, (centre - window.innerWidth / 2) / travel()));
-              lenis?.scrollTo(st.start + progress * (st.end - st.start), { duration: 0.6 });
-            };
-            track.addEventListener("focusin", onFocus);
-            unpin = () => {
-              track.removeEventListener("focusin", onFocus);
-              scene.classList.remove("is-held");
-            };
-          }
-        }
-
-        const refresh = () => ScrollTrigger.refresh();
-        window.addEventListener("load", refresh);
-        document.fonts?.ready.then(refresh);
-
-        return () => {
-          window.clearTimeout(wait);
-          gsap.ticker.lagSmoothing(500, 33);
-          window.removeEventListener("load", refresh);
-          unpin();
-          gsap.ticker.remove(raf);
-          lenis?.destroy();
-        };
+        // Slow parallax: the photograph drifts a little while the first screen leaves.
+        gsap.to("[data-hero-parallax]", { yPercent: 4.5, ease: "none", scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: true } });
       });
 
-      cleanup = () => mm.revert();
-    })();
+      // Smooth scrolling, only here where scroll-driven scenes exist. It runs from GSAP's ticker and
+      // reports every scroll to ScrollTrigger, which keeps the held scene from stuttering.
+      const lenis = new Lenis({ lerp: 0.1, anchors: true, autoRaf: false });
+      lenis.on("scroll", ScrollTrigger.update);
+      const raf = (time: number) => lenis.raf(time * 1000);
+      gsap.ticker.add(raf);
+
+      // Signature scene: the category row is held and travels sideways with the scroll.
+      const scene = document.querySelector<HTMLElement>("[data-cat-scene]");
+      const track = scene?.querySelector<HTMLElement>("[data-cat-track]");
+      let onFocus: ((event: FocusEvent) => void) | undefined;
+      if (scene && track) {
+        scene.classList.add("is-held");
+        ctx.add(() => {
+          const travel = () => Math.max(0, track.scrollWidth - scene.clientWidth + window.innerWidth * 0.06);
+          const tween = gsap.to(track, {
+            x: () => (rtl ? travel() : -travel()), // mirrored in right-to-left
+            ease: "none",
+            scrollTrigger: { trigger: scene, start: "top top", end: () => `+=${travel()}`, scrub: 0.9, pin: true, anticipatePin: 1, invalidateOnRefresh: true },
+          });
+          // Keyboard: when focus lands on a category that is off screen, scroll the scene to it.
+          onFocus = (event: FocusEvent) => {
+            const el = event.target as HTMLElement;
+            const st = tween.scrollTrigger;
+            if (!st || !track.contains(el)) return;
+            const a = el.getBoundingClientRect();
+            const b = track.getBoundingClientRect();
+            const centre = (rtl ? b.right - a.right : a.left - b.left) + a.width / 2;
+            const progress = Math.min(1, Math.max(0, (centre - window.innerWidth / 2) / travel()));
+            lenis.scrollTo(st.start + progress * (st.end - st.start), { duration: 0.6 });
+          };
+          track.addEventListener("focusin", onFocus);
+        });
+      }
+      document.fonts?.ready.then(() => !cancelled && ScrollTrigger.refresh());
+
+      undo.push(() => {
+        if (onFocus) track?.removeEventListener("focusin", onFocus);
+        scene?.classList.remove("is-held");
+        gsap.ticker.remove(raf);
+        gsap.ticker.lagSmoothing(500, 33);
+        lenis.destroy();
+        ctx.revert();
+      });
+    };
+    if (desktop.matches) void startDesktop();
 
     return () => {
       cancelled = true;
-      cleanup();
+      undo.forEach((fn) => fn());
     };
   }, []);
 

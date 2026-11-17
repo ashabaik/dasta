@@ -172,11 +172,11 @@ export function Footer({ lang, t, closing = false, path = "" }: { lang: Lang; t:
 }
 
 /** A tall photograph with nothing around it; the trade terms sit underneath. */
-export function Card({ p, lang, t, reveal = false }: { p: Product; lang: Lang; t: T; reveal?: boolean }) {
+export function Card({ p, lang, t, reveal }: { p: Product; lang: Lang; t: T; reveal?: number }) {
   const photo = <Image src={p.img} alt="" width={1100} height={1100} sizes="(min-width: 1024px) 285px, (min-width: 640px) 31vw, 46vw" className="h-full w-full object-cover" />;
   return (
     <Link href={`${BASE}/${lang}/product`} className="group block">
-      <div className="aspect-[4/5] overflow-hidden rounded-[18px] bg-muted" data-photo-reveal={reveal ? "" : undefined}>
+      <div className="aspect-[4/5] overflow-hidden rounded-[18px] bg-muted" data-photo-reveal={reveal === undefined ? undefined : ""} style={reveal === undefined ? undefined : ({ "--i": reveal } as React.CSSProperties)}>
         {/* The product page opens on the mugs: that photograph travels with the click. */}
         {p.id === "mugs" ? (
           <ViewTransition name="photo-mugs" share="morph" default="none">

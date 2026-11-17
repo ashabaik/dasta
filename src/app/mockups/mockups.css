@@ -274,12 +274,38 @@ html {
    script adds before first paint; without JavaScript, or with reduced motion, the page is complete
    and still. The photograph is visible from the first paint (inset and slightly enlarged), so the
    largest element is never held back by the animation. */
-html.has-motion [data-hero-text],
-html.has-motion [data-closing-text] { visibility: hidden; }
-html.has-motion [data-hero-fade] { opacity: 0; }
-html.has-motion [data-hero-media] { clip-path: inset(9% 9% 9% 9% round 28px); }
-html.has-motion [data-hero-img] { transform: scale(1.16); }
-html.has-motion [data-photo-reveal] { clip-path: inset(0% 0% 100% 0%); }
+
+/* Desktop (wide, fine pointer): GSAP directs the opening; these are the states it starts from. */
+@media (min-width: 1024px) and (pointer: fine) {
+  html.has-motion [data-hero-text],
+  html.has-motion [data-closing-text] { visibility: hidden; }
+  html.has-motion [data-hero-fade] { opacity: 0; }
+  html.has-motion [data-hero-media] { clip-path: inset(9% 9% 9% 9% round 28px); }
+  html.has-motion [data-hero-img] { transform: scale(1.16); }
+}
+
+/* Phones and touch screens: their own opening, written in CSS alone, so no animation library is
+   downloaded there. Same order: photograph, headline, supporting line, actions. */
+@media (prefers-reduced-motion: no-preference) and (max-width: 1023.98px), (prefers-reduced-motion: no-preference) and (pointer: coarse) {
+  .mk-ab [data-hero-media] { animation: dasta-media 1.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .mk-ab [data-hero-img] { animation: dasta-settle 1.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .mk-ab [data-hero-text] { animation: dasta-uncover 1s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
+  .mk-ab [data-hero-fade] { animation: dasta-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both; }
+  .mk-ab [data-hero-fade] + [data-hero-fade] { animation-delay: 0.8s; }
+  /* The closing line and its action uncover once, when they scroll into view. */
+  html.has-motion [data-closing-text] { transition: clip-path 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1); }
+  html.has-motion [data-closing-text]:not(.is-in) { clip-path: inset(0% 0% 100% 0%); transform: translateY(0.3em); }
+  html.has-motion [data-closing-fade] { transition: opacity 0.8s ease 0.35s, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.35s; }
+  html.has-motion [data-closing-fade]:not(.is-in) { opacity: 0; transform: translateY(18px); }
+}
+@keyframes dasta-media { from { clip-path: inset(9% 9% 9% 9% round 28px); } to { clip-path: inset(0% 0% 0% 0% round 0px); } }
+@keyframes dasta-settle { from { transform: scale(1.16); } to { transform: scale(1); } }
+@keyframes dasta-uncover { from { clip-path: inset(0% 0% 100% 0%); transform: translateY(0.3em); } to { clip-path: inset(0% 0% 0% 0%); transform: none; } }
+@keyframes dasta-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+/* Product photographs uncover once, row by row, on every screen. The script only adds .is-in. */
+html.has-motion [data-photo-reveal] { transition: clip-path 1.05s cubic-bezier(0.16, 1, 0.3, 1); transition-delay: calc(var(--i, 0) * 70ms); }
+html.has-motion [data-photo-reveal]:not(.is-in) { clip-path: inset(0% 0% 100% 0%); }
 /* Line masks from the text split: leave room for descenders and Arabic marks. */
 .sl-mask { padding-block: 0.1em; margin-block: -0.1em; }
 

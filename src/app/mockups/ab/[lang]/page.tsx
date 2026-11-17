@@ -43,7 +43,7 @@ export default async function HomeAB({ params }: { params: Promise<{ lang: strin
               </div>
             </div>
             {/* On a phone the photograph comes first and is cropped to the lamp; the headline follows it. */}
-            <div data-hero-media className="relative order-first mx-4 mt-1 aspect-[5/4] overflow-hidden rounded-[24px] bg-muted sm:mx-8 sm:aspect-[16/9] lg:order-none lg:mx-0 lg:mt-0 lg:aspect-auto lg:rounded-none lg:rounded-es-[44px]">
+            <div data-hero-media className="relative order-first mx-4 mt-1 aspect-[5/4] overflow-hidden rounded-[24px] bg-[#d3cfc5] sm:mx-8 sm:aspect-[16/9] lg:order-none lg:mx-0 lg:mt-0 lg:aspect-auto lg:rounded-none lg:rounded-es-[44px]">
               <div data-hero-parallax className="absolute inset-x-0 -top-[5%] h-[110%]">
                 <Image data-hero-img src="/mk/lamp.jpg" alt="" fill preload sizes="(min-width: 1024px) 52vw, 100vw" className="object-cover object-[50%_82%] lg:object-[34%_50%]" />
               </div>
@@ -84,8 +84,8 @@ export default async function HomeAB({ params }: { params: Promise<{ lang: strin
                 </Link>
               </div>
               <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:mt-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-14">
-                {fresh.map((p) => (
-                  <Card key={p.id} p={p} lang={lang} t={t} reveal />
+                {fresh.map((p, i) => (
+                  <Card key={p.id} p={p} lang={lang} t={t} reveal={i % 4} />
                 ))}
               </div>
             </section>
