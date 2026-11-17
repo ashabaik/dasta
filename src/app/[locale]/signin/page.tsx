@@ -1,5 +1,7 @@
 import { ChevronRight, ShieldCheck, Store, Truck } from "lucide-react";
 import { asLocale, getDict } from "@/lib/i18n";
+import { Button } from "@/components/shadcn/button";
+import { Input } from "@/components/shadcn/input";
 import { passwordSignIn, sampleSignIn } from "../actions";
 
 type Search = Record<string, string | string[] | undefined>;
@@ -28,17 +30,17 @@ export default async function SignInPage({ params, searchParams }: { params: Pro
             <label htmlFor="si-email" className="label">
               {s.email}
             </label>
-            <input id="si-email" name="email" type="email" autoComplete="email" dir="ltr" required className="input" />
+            <Input id="si-email" name="email" type="email" autoComplete="email" dir="ltr" required />
           </div>
           <div>
             <label htmlFor="si-password" className="label">
               {s.password}
             </label>
-            <input id="si-password" name="password" type="password" autoComplete="current-password" dir="ltr" required className="input" />
+            <Input id="si-password" name="password" type="password" autoComplete="current-password" dir="ltr" required />
           </div>
-          <button type="submit" className="btn min-h-12 w-full text-base">
+          <Button type="submit" size="md" className="w-full">
             {s.submit}
-          </button>
+          </Button>
         </form>
 
         <form id="supplier" action={sampleSignIn} className="mt-8 scroll-mt-28 border-t border-border pt-6">
@@ -46,9 +48,9 @@ export default async function SignInPage({ params, searchParams }: { params: Pro
           <input type="hidden" name="role" value="new-seller" />
           <p className="font-medium">{s.newHere}</p>
           <p className="mt-1 max-w-[46ch] text-[15px] text-muted-foreground">{s.openSupplierHint}</p>
-          <button type="submit" className="btn btn-ghost mt-4" data-testid="signin-new-seller">
+          <Button type="submit" variant="outline" className="mt-4" data-testid="signin-new-seller">
             {s.openSupplier}
-          </button>
+          </Button>
         </form>
       </section>
 

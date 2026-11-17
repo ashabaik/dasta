@@ -3,6 +3,9 @@
 //
 //   npm run test:crawl                 builds the app against the TEST project, starts it, crawls it
 //   npm run test:crawl -- --base URL   crawls an app that is already running against the TEST project
+//   npm run test:crawl -- --live URL   crawls the LIVE site, read-only: it signs in as the sample accounts
+//                                      and opens pages; it seeds nothing, takes no lock and sends no form,
+//                                      callback or message
 //
 // Heavy run: uses the same lock, time cap and test-only rule as the database tests.
 import { spawn } from "node:child_process";
@@ -12,8 +15,10 @@ import { EMAIL_DOMAIN, sellers, sellerCanaries } from "./seed-data.mjs";
 import { setup, teardown } from "../tests/db/global-setup.mjs";
 import { buildMockTransaction, signTransaction } from "../src/lib/payments.ts";
 
-const env = targetEnv("test");
-const argBase = process.argv.indexOf("--base");
+const argLive = process.argv.indexOf("--live");
+const live = argLive > 0;
+const env = targetEnv(live ? "demo" : "test");
+const argBase = live ? argLive : process.argv.indexOf("--base");
 let base = argBase > 0 ? process.argv[argBase + 1].replace(/\/$/, "") : null;
 const PORT = 3112;
 const MAX_PAGES = 400;
@@ -118,7 +123,7 @@ async function expectRedirect(label, cookie, path) {
 async function main() {
   process.env.SEED_IMAGES = "1"; // pages are crawled with the showcase catalogue and its photographs
   process.env.SEED_DATASET = "showcase";
-  await setup(); // lock + fresh seed of the TEST project
+  if (!live) await setup(); // lock + fresh seed of the TEST project
   let server;
   try {
     if (!base) {
@@ -172,6 +177,9 @@ async function main() {
     }
     await expectRedirect("visitor", anon.cookie, "/en/seller");
     await expectRedirect("buyer", buyer.cookie, "/en/seller");
+    if (live) {
+      console.log("  access rules: done. Read-only run: nothing was written to the live site.");
+    } else {
 
     // Hidden things stay hidden: a seller who is not approved has no public page and no public product.
     for (const [label, c] of [["visitor", anon.cookie], ["buyer", buyer.cookie]]) {
@@ -269,9 +277,10 @@ async function main() {
       if (!paid.body.includes("Paid, payment protected")) fail("webhook: the order page does not show the captured payment");
     }
     console.log("  access rules, order pages, conversations, webhook and control: done");
+    }
   } finally {
     if (server) spawn("taskkill", ["/pid", String(server.pid), "/T", "/F"], { stdio: "ignore" });
-    await teardown();
+    if (!live) await teardown();
   }
 
   if (failures.length) {

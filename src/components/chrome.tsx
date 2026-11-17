@@ -4,6 +4,8 @@ import type { Dict, Locale } from "@/lib/i18n";
 import type { Viewer } from "@/lib/session";
 import { signOut } from "@/app/[locale]/actions";
 import { LocaleSwitch } from "@/components/locale-switch";
+import { Button } from "@/components/shadcn/button";
+import { Input } from "@/components/shadcn/input";
 import { Wordmark } from "@/components/ui";
 
 export const PORTFOLIO_URL = "https://ashabaik.github.io";
@@ -21,7 +23,7 @@ export function Header({ locale, t, viewer }: { locale: Locale; t: Dict; viewer:
         </Link>
         <form action={`/${locale}`} role="search" className="relative order-last basis-full md:order-none md:mx-auto md:max-w-[520px] md:flex-1 md:basis-auto">
           <Search className="pointer-events-none absolute start-4 top-1/2 size-[18px] -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-          <input name="q" type="search" placeholder={t.search.placeholder} aria-label={t.search.placeholder} className="h-12 w-full rounded-full border border-input bg-background pe-4 ps-11 text-base" />
+          <Input name="q" type="search" placeholder={t.search.placeholder} aria-label={t.search.placeholder} className="rounded-full pe-4 ps-11" />
         </form>
         <div className="ms-auto flex items-center gap-1">
           {viewer ? (
@@ -52,9 +54,9 @@ export function Header({ locale, t, viewer }: { locale: Locale; t: Dict; viewer:
               </form>
             </>
           ) : (
-            <Link href={`/${locale}/signin`} className="btn">
-              {t.nav.signIn}
-            </Link>
+            <Button asChild>
+              <Link href={`/${locale}/signin`}>{t.nav.signIn}</Link>
+            </Button>
           )}
         </div>
       </div>
@@ -85,9 +87,9 @@ export function Footer({ locale, t, closing = false, className = "" }: { locale:
               {t.home.closingText}
             </p>
             <div data-closing-fade className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <Link href={`${home}/signin`} className="btn btn-ondark btn-lg">
-                {t.nav.createAccount}
-              </Link>
+              <Button asChild variant="onDark" size="lg">
+                <Link href={`${home}/signin`}>{t.nav.createAccount}</Link>
+              </Button>
               <Link href={`${home}/signin#supplier`} className="inline-flex min-h-11 items-center text-[17px] font-medium underline underline-offset-4">
                 {t.nav.sell}
               </Link>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MessageSquare, Minus, Plus } from "lucide-react";
 import { formatMoney, formatQty } from "@/lib/format";
+import { Button } from "@/components/shadcn/button";
 import { unitPriceFor, type PriceBreak } from "@/components/ui";
 
 type Labels = {
@@ -120,9 +121,9 @@ export function OrderPanel({
               </button>
             </div>
           </div>
-          <button type="submit" className="btn mt-4 min-h-12 w-full text-base" data-testid="order-now">
+          <Button type="submit" size="md" className="mt-4 w-full" data-testid="order-now">
             {labels.order} <span className="num">{formatMoney(total)}</span> {labels.currency}
-          </button>
+          </Button>
         </form>
       ) : null}
 
@@ -130,10 +131,10 @@ export function OrderPanel({
         <form action={openThread}>
           <input type="hidden" name="locale" value={locale} />
           <input type="hidden" name="ref" value={productRef} />
-          <button type="submit" className="btn btn-ghost min-h-12 w-full text-base" data-testid="message-seller">
-            <MessageSquare className="size-[18px]" aria-hidden="true" />
+          <Button type="submit" variant="outline" size="md" className="w-full" data-testid="message-seller">
+            <MessageSquare aria-hidden="true" />
             {labels.message}
-          </button>
+          </Button>
         </form>
       ) : null}
     </>

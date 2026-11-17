@@ -6,6 +6,7 @@ import { formatQty } from "@/lib/format";
 import { supabaseServer } from "@/lib/supabase/server";
 import { CARD_SELECT, ProductCard, firstPhoto, type CardProduct } from "@/components/ui";
 import { Footer } from "@/components/chrome";
+import { Button } from "@/components/shadcn/button";
 import { HomeMotion } from "@/components/home-motion";
 
 const PAGE_SIZE = 12;
@@ -75,9 +76,9 @@ export default async function HomePage({ params, searchParams }: { params: Promi
               {t.home.lead}
             </p>
             <div data-hero-fade className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <Link href={`/${locale}#products`} className="btn btn-lg">
-                {t.home.browse}
-              </Link>
+              <Button asChild size="lg">
+                <Link href={`/${locale}#products`}>{t.home.browse}</Link>
+              </Button>
               <Link href={`/${locale}/signin#supplier`} className="inline-flex min-h-11 items-center text-[17px] font-medium text-primary underline underline-offset-4">
                 {t.nav.sell}
               </Link>

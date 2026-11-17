@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/session";
 import { supabaseServer } from "@/lib/supabase/server";
 import { formatQty } from "@/lib/format";
 import { Money } from "@/components/ui";
+import { Button } from "@/components/shadcn/button";
 import { ORDER_SELECT, OrdersTable, type OrderRow } from "@/components/orders";
 import { sellerOnboard } from "../actions";
 
@@ -160,10 +161,12 @@ export default async function SellerDashboard({ params, searchParams }: { params
           </div>
         </div>
         {full ? null : (
-          <Link href={`/${locale}/seller/products/new`} className="btn">
-            <Plus className="size-[18px]" aria-hidden="true" />
-            {d.add}
-          </Link>
+          <Button asChild>
+            <Link href={`/${locale}/seller/products/new`}>
+              <Plus aria-hidden="true" />
+              {d.add}
+            </Link>
+          </Button>
         )}
       </div>
       {full ? <p className="notice mt-3">{d.limitReached}</p> : null}
