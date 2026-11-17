@@ -1,0 +1,9 @@
+Readex Pro
+Copyright 2019 The Readex Pro Project Authors (https://github.com/ThomasJockin/readexpro)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+The licence is available with a FAQ at: https://openfontlicense.org
+
+Files in this folder: the Arabic and Latin subsets of the variable font (weights 160 to 700), as
+served by Google Fonts. They are kept here, instead of being loaded through next/font, so that each
+language preloads only the file it needs.

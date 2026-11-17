@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { ViewTransition } from "react";
-import { Bricolage_Grotesque, Readex_Pro } from "next/font/google";
+import { Bricolage_Grotesque } from "next/font/google";
 import "../globals.css";
 import { asLocale, getDict } from "@/lib/i18n";
 import { getViewer } from "@/lib/session";
@@ -8,9 +8,10 @@ import { Footer, Header } from "@/components/chrome";
 import { TabBar } from "@/components/tab-bar";
 
 // English headings use the display face; it is not preloaded, so the Arabic pages (which never use it)
-// do not download it. Text in both languages uses one family drawn for both scripts.
+// do not download it. Text in both languages uses one family drawn for both scripts (Readex Pro,
+// declared in globals.css): its Latin file is preloaded everywhere, its Arabic file on Arabic pages only.
 const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--f-display", preload: false });
-const body = Readex_Pro({ subsets: ["latin", "arabic"], variable: "--f-body" });
+const TEXT_FONTS = { latin: "/fonts/readex-pro-latin.v1.woff2", arabic: "/fonts/readex-pro-arabic.v1.woff2" };
 
 // Runs before the first paint. It marks the page as "motion will run", which lets the stylesheet hold
 // the home page's opening state until the motion code (loaded after first paint) takes over. No class
@@ -35,9 +36,11 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const viewer = await getViewer();
 
   return (
-    <html lang={locale} dir={t.dir} className={`${display.variable} ${body.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang={locale} dir={t.dir} className={`${display.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: MOTION_GATE }} />
+        <link rel="preload" href={TEXT_FONTS.latin} as="font" type="font/woff2" crossOrigin="anonymous" />
+        {locale === "ar" ? <link rel="preload" href={TEXT_FONTS.arabic} as="font" type="font/woff2" crossOrigin="anonymous" /> : null}
       </head>
       <body className="flex min-h-full flex-col">
         <Header locale={locale} t={t} viewer={viewer} />

@@ -149,7 +149,7 @@ export default async function HomePage({ params, searchParams }: { params: Promi
               {live.map((c) => (
                 <li key={c.slug} className="w-[66vw] max-w-[320px] shrink-0 snap-start lg:w-[calc(min(56vh,540px)*0.8)] lg:max-w-none">
                   <Link href={`/${locale}?cat=${c.slug}`} className="group block">
-                    <div className="relative aspect-[4/5] overflow-hidden rounded-[22px] bg-muted">{c.image ? <Image src={c.image} alt="" fill sizes="(min-width: 1024px) 432px, 66vw" className="object-cover" /> : null}</div>
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-[22px] bg-muted">{c.image ? <Image src={c.image} alt="" fill quality={60} sizes="(min-width: 1024px) 432px, 66vw" className="object-cover" /> : null}</div>
                     <p className="mt-4 font-heading text-[22px] font-bold tracking-tight underline-offset-4 group-hover:underline lg:text-[28px]">{pick(c, "name", locale)}</p>
                     <p className="text-muted-foreground">{t.catalogue.results(c.count)}</p>
                   </Link>
