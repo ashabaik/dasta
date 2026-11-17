@@ -53,7 +53,7 @@ export default async function SellerDashboard({ params, searchParams }: { params
                   ["legal_name", f.legalName, "Sample New Seller Trading (fictional)", "text"],
                   ["contact_name", f.contactName, "Sample Contact", "text"],
                   ["phone", f.phone, "+20 000 000 0199", "tel"],
-                  ["email", f.email, "contact@makbas.example", "email"],
+                  ["email", f.email, "contact@dasta.example", "email"],
                   ["address", f.address, "Plot 99, Sample Industrial Zone (fictional)", "text"],
                   ["tax_id", f.taxId, "000-000-199", "text"],
                   ["bank_name", f.bankName, "Sample Bank (fictional)", "text"],

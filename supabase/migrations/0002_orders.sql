@@ -1,4 +1,4 @@
--- Makbas 0002: orders, escrow state machine, double-entry ledger, payments, disputes, payouts.
+-- Dasta 0002: orders, escrow state machine, double-entry ledger, payments, disputes, payouts.
 --
 -- Rules this file sets up:
 --   * An order changes state only inside the functions below. Users have SELECT on orders, nothing else.

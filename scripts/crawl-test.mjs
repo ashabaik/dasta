@@ -17,7 +17,7 @@ const argBase = process.argv.indexOf("--base");
 let base = argBase > 0 ? process.argv[argBase + 1].replace(/\/$/, "") : null;
 const PORT = 3112;
 const MAX_PAGES = 400;
-const BUYER_CANARIES = ["MKPRIVB", "000 000 02", `buyer1@${EMAIL_DOMAIN}`, `buyer2@${EMAIL_DOMAIN}`, `admin@${EMAIL_DOMAIN}`];
+const BUYER_CANARIES = ["DSPRIVB", "000 000 02", `buyer1@${EMAIL_DOMAIN}`, `buyer2@${EMAIL_DOMAIN}`, `admin@${EMAIL_DOMAIN}`];
 
 const failures = [];
 const fail = (msg) => {
@@ -106,7 +106,8 @@ async function expectRedirect(label, cookie, path) {
 }
 
 async function main() {
-  process.env.SEED_IMAGES = "1"; // pages should be crawled with the sample images and their credits
+  process.env.SEED_IMAGES = "1"; // pages are crawled with the showcase catalogue and its photographs
+  process.env.SEED_DATASET = "showcase";
   await setup(); // lock + fresh seed of the TEST project
   let server;
   try {
@@ -140,8 +141,8 @@ async function main() {
     const seeds = [
       "/en/admin", "/en/seller", "/en/buyer", "/en/seller/products/new", `/en/seller/products/${seller1Ref}`,
       `/en/p/${pendingRef}`, "/en/s/S-W6PA", ...sellers.map((s) => `/en/s/${s.code}`), ...refs.map((r) => `/en/p/${r.ref}`),
-      "/en?q=MKPRIV", "/en?q=sample", "/en?q=000", "/en/p/P-NOPE00", "/en/s/S-NOPE",
-      "/en/admin/orders", "/en/admin/money", "/ar/admin/money", "/en/admin/moderation", "/en/messages", "/ar/messages", "/en/credits", "/ar/credits",
+      "/en?q=DSPRIV", "/en?q=sample", "/en?q=000", "/en/p/P-NOPE00", "/en/s/S-NOPE",
+      "/en/admin/orders", "/en/admin/money", "/ar/admin/money", "/en/admin/moderation", "/en/messages", "/ar/messages",
       ...threads.flatMap((t) => [`/en/messages/${t.id}`, `/ar/messages/${t.id}`]),
       ...orders.flatMap((o) => [`/en/orders/${o.no}`, `/ar/orders/${o.no}`, `/en/orders/${o.no}/invoice`, `/en/pay/${o.no}`]),
     ];
@@ -177,7 +178,7 @@ async function main() {
     // Control: the scanner does see page content. Seller 1's own dashboard shows seller 1's own details.
     {
       const own = await get("/en/seller", await cookieFor("seller1"));
-      if (!own.body.includes("MKPRIV01NAME")) fail("control: seller 1 should see their own identity on their dashboard");
+      if (!own.body.includes("DSPRIV01NAME")) fail("control: seller 1 should see their own identity on their dashboard");
       if (findCanaries(own.body, canariesFor([1])).length) fail("seller 1's dashboard shows someone else's private data");
     }
     // Orders: only the two parties and the admin can open an order; a seller cannot open an unpaid one.
@@ -255,7 +256,7 @@ async function main() {
       const replay = await (await hook(cb, good)).json();
       if (replay.result !== "duplicate") fail(`webhook: a replay should be a duplicate, got ${JSON.stringify(replay)}`);
       const paid = await get(`/en/orders/${unpaid.no}`, buyer.cookie);
-      if (!paid.body.includes("Paid, held by Makbas")) fail("webhook: the order page does not show the captured payment");
+      if (!paid.body.includes("Paid, payment protected")) fail("webhook: the order page does not show the captured payment");
     }
     console.log("  access rules, order pages, conversations, webhook and control: done");
   } finally {

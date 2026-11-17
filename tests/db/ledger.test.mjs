@@ -63,7 +63,7 @@ describe("an order from payment to payout", () => {
     before = await overview();
     const stock = await stockOf("MB-TR-30210");
     no = await createOrder(buyer1, "MB-TR-30210", 3);
-    expect(no).toMatch(/^MK-[2-9A-Z]{6}$/);
+    expect(no).toMatch(/^DS-[2-9A-Z]{6}$/);
     const o = await orderRow(no);
     expect(o).toMatchObject({ status: "pending_payment", quantity: 3, commission_bps: 800 });
     expect(Number(o.total_piastres)).toBe(total);
@@ -115,7 +115,7 @@ describe("an order from payment to payout", () => {
     expect((await seller2.rpc("seller_mark_shipped", { p_no: no })).error).not.toBeNull();
     const { data, error } = await seller3.rpc("seller_mark_shipped", { p_no: no });
     expect(error).toBeNull();
-    expect(data).toMatch(/^MKW-[2-9A-Z]{8}$/);
+    expect(data).toMatch(/^DSW-[2-9A-Z]{8}$/);
     expect((await orderRow(no)).status).toBe("shipped");
   });
 
@@ -333,7 +333,7 @@ describe("who may do what", () => {
     const o = (await buyer1.from("orders").select("id, no, status").limit(1)).data[0];
     await buyer1.from("orders").update({ status: "completed" }).eq("id", o.id);
     await buyer1.from("orders").delete().eq("id", o.id);
-    const ins = await buyer1.from("orders").insert({ no: "MK-FORGED" });
+    const ins = await buyer1.from("orders").insert({ no: "DS-FORGED" });
     expect(ins.error).not.toBeNull();
     expect((await orderRow(o.no)).status).toBe(o.status);
   });

@@ -1,4 +1,4 @@
--- Makbas 0003: buyer-seller chat with contact-detail filtering, moderation queue, strikes,
+-- Dasta 0003: buyer-seller chat with contact-detail filtering, moderation queue, strikes,
 -- and the same guard on seller-written listing text.
 --
 -- Rules this file sets up:

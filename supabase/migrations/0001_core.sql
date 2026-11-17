@@ -1,4 +1,4 @@
--- Makbas 0001: schemas, roles, sellers (public / private split), catalogue, 10-product limit.
+-- Dasta 0001: schemas, roles, sellers (public / private split), catalogue, 10-product limit.
 --
 -- Rules this file sets up:
 --   public   the only schema the Data API exposes. RLS on every table. Every grant is written here by hand.

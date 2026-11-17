@@ -47,7 +47,7 @@ export function canariesExcept(own = []) {
 }
 
 /** Markers of buyers' private data and of every account e-mail. */
-export const BUYER_CANARIES = ["MKPRIVB", "000 000 02", `buyer1@${EMAIL_DOMAIN}`, `buyer2@${EMAIL_DOMAIN}`, `admin@${EMAIL_DOMAIN}`];
+export const BUYER_CANARIES = ["DSPRIVB", "000 000 02", `buyer1@${EMAIL_DOMAIN}`, `buyer2@${EMAIL_DOMAIN}`, `admin@${EMAIL_DOMAIN}`];
 
 /** Returns the markers found in any JSON-serialisable value. */
 export function findCanaries(value, canaries) {

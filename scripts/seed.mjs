@@ -1,21 +1,28 @@
 // Resets the sample data of one Supabase project and seeds it again.
 //   node scripts/seed.mjs --target test
-// Deletes ALL marketplace rows and ALL auth users of that project, then recreates the demo set.
+// Deletes ALL marketplace rows and ALL auth users of that project, then recreates the sample set.
+// Two datasets: the showcase catalogue the live site shows (default), or the neutral fixtures the
+// database tests run against (tests/fixtures.mjs).
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import pg from "pg";
 import { createClient } from "@supabase/supabase-js";
 import { targetEnv, targetFromArgs } from "./env.mjs";
-import { users, sellers, products, sampleOrders, sampleThreads, sellerIdentity, buyerIdentity } from "./seed-data.mjs";
+import { users, sellers, showcase, sellerIdentity, buyerIdentity } from "./seed-data.mjs";
 import { checkText } from "../src/lib/contact-filter.ts";
 
 export async function seed(target, opts = {}) {
   return seedWithEnv(targetEnv(target), opts);
 }
 
-/** env: { target, databaseUrl, supabaseUrl, secretKey, demoPassword }. images: also upload the sample images. */
-export async function seedWithEnv(env, { quiet = false, images = true } = {}) {
+/**
+ * env: { target, databaseUrl, supabaseUrl, secretKey, demoPassword }.
+ * dataset: { products, sampleOrders, sampleThreads, images } (default: the showcase catalogue).
+ * images: also upload the sample photographs (only the showcase has any).
+ */
+export async function seedWithEnv(env, { quiet = false, images = true, dataset = showcase } = {}) {
+  const { products, sampleOrders, sampleThreads } = dataset;
   const target = env.target;
   const log = (...a) => quiet || console.log(...a);
   const admin = createClient(env.supabaseUrl, env.secretKey, { auth: { persistSession: false, autoRefreshToken: false } });
@@ -48,7 +55,7 @@ export async function seedWithEnv(env, { quiet = false, images = true } = {}) {
       }
     }
 
-    // 2. users (confirmed directly: the demo never depends on e-mail delivery)
+    // 2. users (confirmed directly: sign-in never depends on e-mail delivery)
     const ids = {};
     for (const u of users) {
       const { data, error } = await admin.auth.admin.createUser({
@@ -101,32 +108,34 @@ export async function seedWithEnv(env, { quiet = false, images = true } = {}) {
 
     // 5. products
     const cats = Object.fromEntries((await db.query("select slug, id from public.categories")).rows.map((r) => [r.slug, r.id]));
-    for (const [n, cat, pn, cond, egp, stock, en, ar, specs] of products) {
+    for (const p of products) {
       await db.query(
-        `insert into public.products (seller_id, category_id, part_number, condition, price_piastres, stock, title_en, title_ar, specs)
-         values ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)`,
-        [sellerIds[n], cats[cat], pn, cond, egp * 100, stock, en, ar, JSON.stringify(specs)],
+        `insert into public.products (seller_id, category_id, part_number, condition, price_piastres, stock, title_en, title_ar, specs,
+                                      description_en, description_ar, unit_en, unit_ar, min_order_qty, lead_days, price_breaks)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12, $13, $14, $15, $16::jsonb)`,
+        [sellerIds[p.seller], cats[p.cat], p.code, p.condition, p.egp * 100, p.stock, p.en, p.ar, JSON.stringify(p.specs ?? []),
+         p.desc_en ?? "", p.desc_ar ?? "", p.unit_en ?? "piece", p.unit_ar ?? "قطعة", p.moq ?? 1, p.lead ?? 3, JSON.stringify(p.breaks ?? [])],
       );
     }
 
-    // 5b. one image per sample listing: a freely licensed photo or a drawing made for this project.
-    //     Sources and licences are in scripts/seed-images/credits.json. Every file goes through the same
-    //     re-encoding as a seller's upload.
-    if (images) {
+    // 5b. one photograph per sample listing. Sources and licences are in scripts/seed-images/credits.json.
+    //     Every file goes through the same re-encoding as a supplier's upload.
+    if (images && dataset.images) {
       const dir = join(process.cwd(), "scripts", "seed-images");
       const credits = JSON.parse(readFileSync(join(dir, "credits.json"), "utf8"));
       const { reencodePhoto } = await import("../src/lib/photo.ts");
-      for (const [part, c] of Object.entries(credits)) {
-        const product = (await db.query("select id from public.products where part_number = $1", [part])).rows[0];
-        if (!product) continue;
-        const clean = await reencodePhoto(readFileSync(join(dir, `${part}.jpg`)));
+      for (const p of products.filter((x) => x.img)) {
+        const c = credits[p.img];
+        if (!c) throw new Error(`no credits entry for ${p.img}`);
+        const product = (await db.query("select id from public.products where part_number = $1", [p.code])).rows[0];
+        const clean = await reencodePhoto(readFileSync(join(dir, `${p.img}.jpg`)));
         const path = `${randomUUID()}.webp`;
         const up = await admin.storage.from("product-images").upload(path, clean.data, { contentType: "image/webp", cacheControl: "31536000" });
-        if (up.error) throw new Error(`image upload ${part}: ${up.error.message}`);
+        if (up.error) throw new Error(`image upload ${p.img}: ${up.error.message}`);
         await db.query(
-          `insert into public.product_images (product_id, path, width, height, kind, credit_title, credit_author, credit_license, credit_license_url, credit_source_url)
-           values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-          [product.id, path, clean.width, clean.height, c.kind, c.title ?? null, c.author ?? null, c.license ?? null, c.license_url ?? null, c.source_url ?? null],
+          `insert into public.product_images (product_id, path, width, height, kind, credit_title, credit_license, credit_source_url)
+           values ($1, $2, $3, $4, 'photo', $5, $6, $7)`,
+          [product.id, path, clean.width, clean.height, c.title ?? null, c.licence, c.source_url],
         );
       }
     }
@@ -153,7 +162,7 @@ export async function seedWithEnv(env, { quiet = false, images = true } = {}) {
       ]);
     };
     for (const o of sampleOrders) {
-      const no = (await asUser(o.buyer, "select public.buyer_create_order($1, $2) as no", [await refOf(o.part), o.qty])).no;
+      const no = (await asUser(o.buyer, "select public.buyer_create_order($1, $2) as no", [await refOf(o.code), o.qty])).no;
       if (o.to === "pending_payment") continue;
       await pay(no);
       if (o.to === "paid_held") continue;
@@ -165,7 +174,7 @@ export async function seedWithEnv(env, { quiet = false, images = true } = {}) {
       await asUser(`seller${sellers.find((x) => x.code === seller).n}`, "select public.seller_mark_shipped($1)", [no]);
       if (o.to === "shipped") continue;
       if (o.to === "disputed") {
-        await asUser(o.buyer, "select public.buyer_open_dispute($1, $2, $3)", [no, "not_as_described", "Sample note: the thread size differs from the listing."]);
+        await asUser(o.buyer, "select public.buyer_open_dispute($1, $2, $3)", [no, "not_as_described", "Sample note: the size differs from the listing."]);
         continue;
       }
       await asUser(o.buyer, "select public.buyer_confirm_delivery($1)", [no]);
@@ -174,7 +183,7 @@ export async function seedWithEnv(env, { quiet = false, images = true } = {}) {
 
     // 7. sample conversations, posted through the real function with the real filter's verdict
     for (const th of sampleThreads) {
-      const id = (await asUser(th.buyer, "select public.chat_open_thread($1) as id", [await refOf(th.part)])).id;
+      const id = (await asUser(th.buyer, "select public.chat_open_thread($1) as id", [await refOf(th.code)])).id;
       const history = { buyer: [], seller: [] };
       for (const [who, body] of th.messages) {
         const key = who === "buyer" ? th.buyer : th.seller;

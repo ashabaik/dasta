@@ -1,4 +1,4 @@
--- Makbas 0004: seller ratings.
+-- Dasta 0004: seller ratings.
 -- A buyer may rate a completed order once, with 1 to 5 stars. There is no free text on purpose:
 -- review text would be one more place where a seller's name could be written.
 

@@ -13,7 +13,7 @@ import { checkListing } from "@/lib/contact-filter";
 // Every action below is a public endpoint. Each one either goes through the visitor's own database
 // session (row level security decides) or checks ownership first before using the privileged client.
 
-const DEMO_DOMAIN = "makbas.example";
+const DEMO_DOMAIN = "dasta.example";
 const DEMO_ACCOUNTS: Record<string, string> = { buyer: "buyer1", seller: "seller1", admin: "admin" };
 const MAX_THROWAWAY_SELLERS = 300;
 

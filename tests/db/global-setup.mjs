@@ -5,6 +5,7 @@
 import pg from "pg";
 import { targetEnv } from "../../scripts/env.mjs";
 import { seed } from "../../scripts/seed.mjs";
+import { fixtures } from "../fixtures.mjs";
 
 const LOCK_ID = 7421001;
 const MAX_RUN_MS = 10 * 60 * 1000;
@@ -27,7 +28,10 @@ export async function setup() {
     await lockClient.end();
     throw new Error("Another heavy run is in progress (advisory lock 7421001 is taken). Try again later.");
   }
-  await seed("test", { quiet: true, images: process.env.SEED_IMAGES === "1" });
+  // The database tests run on neutral fixtures. The crawl test asks for the showcase catalogue instead,
+  // so that the pages it opens are the ones the live site serves.
+  const showcase = process.env.SEED_DATASET === "showcase";
+  await seed("test", { quiet: true, images: process.env.SEED_IMAGES === "1", ...(showcase ? {} : { dataset: fixtures }) });
 }
 
 export async function teardown() {

@@ -1,5 +1,5 @@
 // Privacy tests against the real database API.
-// Seeded private fields carry markers (MKPRIV..). These tests read everything a visitor, a buyer and
+// Seeded private fields carry markers (DSPRIV..). These tests read everything a visitor, a buyer and
 // another seller can reach and fail if a marker shows up.
 import { describe, it, expect, beforeAll } from "vitest";
 import { anon, as, sql, env, sellerIdByCode, canariesExcept, findCanaries, BUYER_CANARIES } from "./helpers.mjs";
@@ -142,7 +142,7 @@ describe("control: the scanner does find markers where they really are", () => {
     const rows = await sql("select * from private.seller_identities");
     const found = findCanaries(rows, canariesExcept([]));
     expect(rows).toHaveLength(6);
-    for (const n of ["01", "02", "03", "04", "05", "06"]) expect(found).toContain(`MKPRIV${n}`);
+    for (const n of ["01", "02", "03", "04", "05", "06"]) expect(found).toContain(`DSPRIV${n}`);
   });
 
   it("finds a phone number even when it is written with other separators", () => {
@@ -193,7 +193,7 @@ describe("a seller and their own data", () => {
     const { data, error } = await c.rpc("seller_my_identity");
     expect(error).toBeNull();
     expect(data).toHaveLength(1);
-    expect(data[0].legal_name).toContain("MKPRIV02NAME");
+    expect(data[0].legal_name).toContain("DSPRIV02NAME");
     expect(findCanaries(data, canariesExcept([2]))).toEqual([]);
   });
 
@@ -236,7 +236,7 @@ describe("the admin and the audit log", () => {
     const before = (await sql("select count(*)::int n from private.identity_reveals"))[0].n;
     const { data, error } = await c.rpc("admin_reveal_seller_identity", { p_seller_id: seller1Id, p_reason: "Dispute on a sample order, need to call the seller" });
     expect(error).toBeNull();
-    expect(data[0].legal_name).toContain("MKPRIV01NAME");
+    expect(data[0].legal_name).toContain("DSPRIV01NAME");
     const rows = await sql("select seller_id, reason from private.identity_reveals order by id desc limit 1");
     expect((await sql("select count(*)::int n from private.identity_reveals"))[0].n).toBe(before + 1);
     expect(rows[0].seller_id).toBe(seller1Id);
@@ -248,7 +248,7 @@ describe("the admin and the audit log", () => {
   it("signing up cannot make an admin", async () => {
     const { service } = await import("./helpers.mjs");
     const s = service();
-    const email = `sneaky-${Date.now()}@makbas.example`;
+    const email = `sneaky-${Date.now()}@dasta.example`;
     const { data, error } = await s.auth.admin.createUser({ email, password: env.demoPassword, email_confirm: true, user_metadata: { role: "admin" } });
     expect(error).toBeNull();
     const rows = await sql("select role from private.user_roles where user_id = $1", [data.user.id]);

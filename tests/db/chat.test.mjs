@@ -8,7 +8,7 @@ let buyer1, buyer2, seller1, seller2, seller3, admin, svc;
 const users = {};
 let threadA; // buyer1 <-> seller1 (seeded)
 
-const userId = async (key) => (await sql("select id from auth.users where email = $1", [`${key}@makbas.example`]))[0].id;
+const userId = async (key) => (await sql("select id from auth.users where email = $1", [`${key}@dasta.example`]))[0].id;
 const refOf = async (pn) => (await sql("select ref from public.products where part_number = $1", [pn]))[0].ref;
 const strikesOf = async (key) => (await sql("select count(*)::int n from private.chat_strikes where user_id = $1 and cleared_at is null", [users[key]]))[0].n;
 

@@ -133,7 +133,7 @@ describe("ordinary talk about parts is delivered", () => {
     "Dimensions 25 × 52 × 15 mm",
     "50 x 90 x 21.75 mm, is that right?",
     "Max pressure 250 bar at 1450 rpm, 24 V DC coil",
-    "Order MK-7F8W26, waybill MKW-PQG7RZJ7",
+    "Order DS-7F8W26, waybill DSW-PQG7RZJ7",
     "Part number HV-DC-4306 or MB-TR-30210",
     "Bearing 6205 2RS, do you also have 6206?",
     "Can you deliver by 17/11/2026?",

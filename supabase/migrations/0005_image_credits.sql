@@ -1,4 +1,4 @@
--- Makbas 0005: where a listing image comes from.
+-- Dasta 0005: where a listing image comes from.
 --   upload   a photo uploaded by the seller (re-encoded on the server)
 --   photo    a freely licensed third-party image used for illustration on a sample listing; credit required
 --   drawing  an illustration made for this project

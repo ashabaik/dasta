@@ -32,12 +32,12 @@ describe("payment callback signature", () => {
   });
 
   it("accepts a callback signed with the right secret", () => {
-    const cb = buildMockTransaction("MK-ABC234", 840000, true, 5001);
+    const cb = buildMockTransaction("DS-ABC234", 840000, true, 5001);
     expect(verifyTransaction(cb.obj, signTransaction(cb.obj, SECRET), SECRET)).toBe(true);
   });
 
   it("rejects a wrong secret, a missing signature and a malformed one", () => {
-    const cb = buildMockTransaction("MK-ABC234", 840000, true, 5001);
+    const cb = buildMockTransaction("DS-ABC234", 840000, true, 5001);
     expect(verifyTransaction(cb.obj, signTransaction(cb.obj, "other-secret"), SECRET)).toBe(false);
     expect(verifyTransaction(cb.obj, null, SECRET)).toBe(false);
     expect(verifyTransaction(cb.obj, "abc", SECRET)).toBe(false);
@@ -45,7 +45,7 @@ describe("payment callback signature", () => {
   });
 
   it("rejects a body that was changed after signing", () => {
-    const cb = buildMockTransaction("MK-ABC234", 840000, false, 5001);
+    const cb = buildMockTransaction("DS-ABC234", 840000, false, 5001);
     const hmac = signTransaction(cb.obj, SECRET);
     expect(verifyTransaction({ ...cb.obj, success: true, error_occured: false }, hmac, SECRET)).toBe(false);
     expect(verifyTransaction({ ...cb.obj, amount_cents: 1 }, hmac, SECRET)).toBe(false);
@@ -56,6 +56,6 @@ describe("payment callback signature", () => {
     expect(parseTransaction({ type: "TOKEN", obj: {} })).toBeNull();
     expect(parseTransaction({ type: "TRANSACTION", obj: { id: "1", amount_cents: 5, success: true, order: { merchant_order_id: "x" } } })).toBeNull();
     expect(parseTransaction({ type: "TRANSACTION", obj: { id: 1, amount_cents: 5, success: "yes", order: { merchant_order_id: "x" } } })).toBeNull();
-    expect(parseTransaction(buildMockTransaction("MK-ABC234", 100, true, 7))?.order.merchant_order_id).toBe("MK-ABC234");
+    expect(parseTransaction(buildMockTransaction("DS-ABC234", 100, true, 7))?.order.merchant_order_id).toBe("DS-ABC234");
   });
 });
