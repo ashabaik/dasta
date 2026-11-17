@@ -50,7 +50,10 @@ Migrations are plain SQL in [`supabase/migrations/`](supabase/migrations/).
 - Phones have their own choreography in plain CSS and download no animation library.
 - Product, order, dashboard and admin pages are working screens: no smooth-scroll layer, nothing held.
   The product photograph travels from the list to its page (React view transitions).
-- Nothing moves for visitors who prefer reduced motion, and every page is complete with JavaScript off.
+- Nothing moves for visitors who prefer reduced motion, and the pages are complete with JavaScript off.
+  The one exception is the "page not found" screen, which Next.js draws in the browser.
+- The text face (Readex Pro) is served from `public/fonts`, so each language preloads only the file it
+  uses: Latin everywhere, Arabic on Arabic pages.
 - Text is revealed by lines, never by letters, so Arabic stays joined.
 
 ## Security design
