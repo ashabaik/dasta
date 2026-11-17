@@ -10,7 +10,7 @@ export function LocaleSwitch({ locale, label }: { locale: "en" | "ar"; label: st
   const other = locale === "ar" ? "en" : "ar";
   const rest = pathname.replace(/^\/(en|ar)(?=\/|$)/, "");
   return (
-    <Link href={`/${other}${rest}${search ? `?${search}` : ""}`} className="btn btn-ghost" lang={other} hrefLang={other}>
+    <Link href={`/${other}${rest}${search ? `?${search}` : ""}`} className="btn btn-ondark" lang={other} hrefLang={other}>
       {label}
     </Link>
   );

@@ -36,7 +36,7 @@ export default async function AdminModerationPage({ params, searchParams }: { pa
 
   return (
     <>
-      <h1 className="mt-6 text-2xl font-semibold">{t.admin.title}</h1>
+      <h1 className="page-title">{t.admin.title}</h1>
       <AdminNav locale={locale} t={t} current="moderation" />
       {errorKey ? <p className="error mt-4">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}
 

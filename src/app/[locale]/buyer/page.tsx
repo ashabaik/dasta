@@ -16,12 +16,12 @@ export default async function BuyerDashboard({ params }: { params: Promise<{ loc
 
   return (
     <>
-      <h1 className="mt-6 text-2xl font-semibold">{d.title}</h1>
+      <h1 className="page-title">{d.title}</h1>
       <div className="mt-4 grid grid-cols-1 gap-3.5 md:grid-cols-2">
-        <div className="card space-y-2">
-          <h2 className="text-sm font-semibold">{d.yourCode}</h2>
-          <p className="code text-2xl font-semibold">{viewer.buyerCode}</p>
-          <p className="text-[13px] text-muted">{d.codeHint}</p>
+        <div className="space-y-2 rounded-xl bg-navy p-5 text-white shadow-lift">
+          <h2 className="text-sm font-medium text-white/70">{d.yourCode}</h2>
+          <p className="code text-4xl font-bold tracking-tight">{viewer.buyerCode}</p>
+          <p className="text-[13px] text-white/65">{d.codeHint}</p>
         </div>
         <div className="card flex flex-col items-start justify-center gap-3">
           <p className="text-sm text-muted">{t.product.privacyNote}</p>

@@ -55,7 +55,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
       </p>
       <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-[1.1fr_1fr]">
         <div className="space-y-3">
-          <div className="aspect-[4/3] overflow-hidden rounded-md border border-line bg-tile">
+          <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
             {photos[0] ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={imageUrl(photos[0].path)} alt={pick(p, "title", locale)} className="h-full w-full object-contain" />
@@ -94,12 +94,12 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
               <span className="tag">{t.condition[p.condition]}</span>
               <span className="tag">{pick(p.categories, "name", locale)}</span>
             </div>
-            <h1 className="mt-2 text-2xl font-semibold leading-tight">{pick(p, "title", locale)}</h1>
+            <h1 className="mt-2 text-3xl font-bold leading-tight">{pick(p, "title", locale)}</h1>
           </div>
 
           <div className="card space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <Money piastres={p.price_piastres} locale={locale} className="text-2xl font-semibold" />
+              <Money piastres={p.price_piastres} locale={locale} className="text-4xl font-bold" />
               <span className="tag">{p.stock > 0 ? t.catalogue.inStock(p.stock) : t.catalogue.outOfStock}</span>
             </div>
             {errorKey ? <p className="error">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}

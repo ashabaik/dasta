@@ -23,7 +23,7 @@ export default async function SellerPublicPage({ params }: { params: Promise<{ l
 
   return (
     <>
-      <h1 className="mt-6 text-2xl font-semibold">
+      <h1 className="page-title">
         {t.seller.label} <span className="code">{seller.code}</span>
       </h1>
       <div className="card mt-4 space-y-2">

@@ -34,7 +34,7 @@ export default async function EditProductPage({ params, searchParams }: { params
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mt-6 text-2xl font-semibold">{f.editTitle}</h1>
+      <h1 className="page-title">{f.editTitle}</h1>
       <p className="code mt-1 text-sm text-muted">{product.part_number}</p>
       {sp.saved ? <p className="pill pill-ok mt-4">{f.saved}</p> : null}
       {errorKey ? <p className="error mt-4">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}

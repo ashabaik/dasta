@@ -14,7 +14,7 @@ export default async function AdminOrdersPage({ params }: { params: Promise<{ lo
 
   return (
     <>
-      <h1 className="mt-6 text-2xl font-semibold">{t.admin.title}</h1>
+      <h1 className="page-title">{t.admin.title}</h1>
       <AdminNav locale={locale} t={t} current="orders" />
       <h2 className="h-section">{t.adminNav.disputes}</h2>
       {disputed.length ? <OrdersTable orders={disputed} t={t} locale={locale} party="both" /> : <p className="card text-muted">{t.adminNav.noDisputes}</p>}

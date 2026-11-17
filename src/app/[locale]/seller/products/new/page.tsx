@@ -17,7 +17,7 @@ export default async function NewProductPage({ params, searchParams }: { params:
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mt-6 text-2xl font-semibold">{t.productForm.newTitle}</h1>
+      <h1 className="page-title">{t.productForm.newTitle}</h1>
       {errorKey ? <p className="error mt-4">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}
       <div className="mt-4">
         <ProductForm t={t} locale={locale} categories={categories ?? []} />

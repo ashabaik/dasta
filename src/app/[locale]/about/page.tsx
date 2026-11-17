@@ -23,7 +23,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mt-8 text-2xl font-semibold">{a.title}</h1>
+      <h1 className="page-title">{a.title}</h1>
       <p className="mt-2 text-muted">{a.lead}</p>
 
       <h2 className="h-section">{a.tryTitle}</h2>

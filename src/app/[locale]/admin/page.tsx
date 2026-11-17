@@ -42,7 +42,7 @@ export default async function AdminPage({ params, searchParams }: { params: Prom
 
   return (
     <>
-      <h1 className="mt-6 text-2xl font-semibold">{a.title}</h1>
+      <h1 className="page-title">{a.title}</h1>
       <AdminNav locale={locale} t={t} current="sellers" />
       {errorKey ? <p className="error mt-4">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}
 

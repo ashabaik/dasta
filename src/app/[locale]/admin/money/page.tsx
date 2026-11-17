@@ -42,7 +42,7 @@ export default async function AdminMoneyPage({ params, searchParams }: { params:
 
   return (
     <>
-      <h1 className="mt-6 text-2xl font-semibold">{t.admin.title}</h1>
+      <h1 className="page-title">{t.admin.title}</h1>
       <AdminNav locale={locale} t={t} current="money" />
       {errorKey ? <p className="error mt-4">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}
 
@@ -50,9 +50,9 @@ export default async function AdminMoneyPage({ params, searchParams }: { params:
       <div className="card space-y-3" data-testid="ledger">
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {rows.map(([label, value]) => (
-            <div key={label} className="rounded border border-line p-3">
-              <dt className="text-[13px] text-muted">{label}</dt>
-              <dd className="mt-0.5 text-lg font-semibold">
+            <div key={label} className="rounded-lg border border-line border-s-4 border-s-accent bg-paper/50 p-3.5">
+              <dt className="text-[13px] font-medium text-muted">{label}</dt>
+              <dd className="mt-1 text-2xl font-bold">
                 <Money piastres={value} locale={locale} />
               </dd>
             </div>

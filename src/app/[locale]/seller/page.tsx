@@ -22,7 +22,7 @@ export default async function SellerDashboard({ params, searchParams }: { params
     const f = t.onboarding;
     return (
       <div className="mx-auto max-w-3xl">
-        <h1 className="mt-8 text-2xl font-semibold">{f.title}</h1>
+        <h1 className="page-title">{f.title}</h1>
         <p className="mt-2 text-muted">{f.lead}</p>
         <p className="notice mt-4">{f.demoWarning}</p>
         {error ? <p className="error mt-4">{error}</p> : null}
@@ -96,18 +96,18 @@ export default async function SellerDashboard({ params, searchParams }: { params
 
   return (
     <>
-      <h1 className="mt-6 text-2xl font-semibold">{d.title}</h1>
+      <h1 className="page-title">{d.title}</h1>
       {error ? <p className="error mt-4">{error}</p> : null}
 
       <div className="mt-4 grid grid-cols-1 gap-3.5 md:grid-cols-2">
-        <div className="card space-y-2">
-          <h2 className="text-sm font-semibold">{d.yourCode}</h2>
-          <p className="code text-2xl font-semibold">{viewer.sellerCode}</p>
-          <p className="text-[13px] text-muted">{d.codeHint}</p>
+        <div className="space-y-2 rounded-xl bg-navy p-5 text-white shadow-lift">
+          <h2 className="text-sm font-medium text-white/70">{d.yourCode}</h2>
+          <p className="code text-4xl font-bold tracking-tight">{viewer.sellerCode}</p>
+          <p className="text-[13px] text-white/65">{d.codeHint}</p>
           <p>
             <span className={`pill ${status === "active" ? "pill-ok" : status === "pending" ? "pill-held" : "pill-danger"}`}>{d.status[status]}</span>
           </p>
-          <p className="text-[13px] text-muted">{d.statusHelp[status]}</p>
+          <p className="text-[13px] text-white/65">{d.statusHelp[status]}</p>
         </div>
         <details className="card">
           <summary className="cursor-pointer text-sm font-semibold">
@@ -152,9 +152,9 @@ export default async function SellerDashboard({ params, searchParams }: { params
             [t.money.paidOut, money.paid_out_piastres],
           ] as const
         ).map(([label, value]) => (
-          <div key={label} className="card">
-            <dt className="text-[13px] text-muted">{label}</dt>
-            <dd className="mt-0.5 text-lg font-semibold">
+          <div key={label} className="card border-s-4 border-s-accent">
+            <dt className="text-[13px] font-medium text-muted">{label}</dt>
+            <dd className="mt-1 text-2xl font-bold">
               <Money piastres={value} locale={locale} />
             </dd>
           </div>

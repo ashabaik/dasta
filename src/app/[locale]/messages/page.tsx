@@ -24,7 +24,7 @@ export default async function ThreadsPage({ params, searchParams }: { params: Pr
 
   return (
     <>
-      <h1 className="mt-6 text-2xl font-semibold">{c.title}</h1>
+      <h1 className="page-title">{c.title}</h1>
       <p className="notice mt-4">{c.rules}</p>
       {errorKey ? <p className="error mt-4">{(t.errors as Record<string, string>)[errorKey] ?? t.errors.generic}</p> : null}
       {!threads || threads.length === 0 ? (

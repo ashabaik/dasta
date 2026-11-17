@@ -35,7 +35,7 @@ export default async function CreditsPage({ params }: { params: Promise<{ locale
 
   return (
     <>
-      <h1 className="mt-6 text-2xl font-semibold">{m.creditsTitle}</h1>
+      <h1 className="page-title">{m.creditsTitle}</h1>
       <p className="mt-2 max-w-3xl text-muted">{m.creditsLead}</p>
       <div className="card mt-4 overflow-x-auto p-0">
         <table className="table" data-testid="credits">
