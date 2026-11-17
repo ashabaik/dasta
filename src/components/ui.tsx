@@ -52,7 +52,8 @@ export function SellerChip({ seller, regionName, t, locale, link = true }: { sel
       </span>
       <div className="min-w-0 text-[15px]">
         {link ? (
-          <Link href={`/${locale}/s/${seller.code}`} className="underline-offset-4 hover:underline">
+          // A full-height touch target that does not push the lines apart.
+          <Link href={`/${locale}/s/${seller.code}`} className="-my-3 inline-flex min-h-11 items-center underline-offset-4 hover:underline">
             {code}
           </Link>
         ) : (

@@ -82,7 +82,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
         <div className="flex flex-col gap-6">
           <div>
             <p className="flex flex-wrap items-center gap-2">
-              <Link href={`/${locale}?cat=${p.categories.slug}`} className="tag bg-card hover:bg-accent hover:text-accent-foreground">
+              <Link href={`/${locale}?cat=${p.categories.slug}`} className="tag inline-flex min-h-11 items-center bg-card px-4 hover:bg-accent hover:text-accent-foreground">
                 {category}
               </Link>
               <span className="text-[13px] text-muted-foreground">
